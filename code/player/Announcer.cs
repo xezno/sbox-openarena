@@ -57,7 +57,7 @@ public class Announcer : Entity
 	}
 
 	[ArenaEvent.Player.Kill]
-	public void OnKill()
+	public void OnKill( Player victim )
 	{
 		CurrentKillStreak++;
 		FastKillStreak++;
@@ -91,7 +91,7 @@ public class Announcer : Entity
 	}
 
 	[ArenaEvent.Player.Death]
-	public void OnDeath()
+	public void OnDeath( Player attacker )
 	{
 		CurrentKillStreak = 0;
 	}
