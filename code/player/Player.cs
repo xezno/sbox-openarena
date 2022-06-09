@@ -2,150 +2,123 @@
 
 partial class Player
 {
-    [Net] private bool IsInvincible { get; set; }
+	[Net] private bool IsInvincible { get; set; }
 
-    [ConCmd.Admin( "god" )]
-    public static void GodMode()
-    {
-        var caller = ConsoleSystem.Caller;
-        var pawn = caller.Pawn;
+	public void Respawn()
+	{
+		SetModel( "models/citizen/citizen.vmdl" );
 
-        if ( pawn is Player player )
-        {
-            player.IsInvincible = !player.IsInvincible;
-            Log.Trace( $"Godmode is now {( player.IsInvincible ? "ON" : "OFF" )}" );
-        }
-    }
+		EnableDrawing = true;
+		EnableHideInFirstPerson = true;
+		EnableShadowInFirstPerson = true;
 
-    [ConCmd.Admin( "impulse" )]
-    public static void Impulse()
-    {
-        var caller = ConsoleSystem.Caller;
-        var pawn = caller.Pawn;
+		Controller = new WalkController();
+		Animator = new StandardPlayerAnimator();
+		CameraMode = new FirstPersonCamera();
 
-        if ( pawn is Player player )
-        {
-            player.Inventory.Add( new SMG() );
-            player.Inventory.Add( new RocketLauncher() );
-            player.Inventory.Add( new LightningGun(), true );
-        }
-    }
+		LifeState = LifeState.Alive;
+		Health = 100;
+		Velocity = Vector3.Zero;
+		WaterLevel = 0;
 
-    public void Respawn()
-    {
-        SetModel( "models/citizen/citizen.vmdl" );
+		CreateHull();
 
-        EnableDrawing = true;
-        EnableHideInFirstPerson = true;
-        EnableShadowInFirstPerson = true;
+		Game.Current?.MoveToSpawnpoint( this );
+		ResetInterpolation();
+	}
 
-        Controller = new WalkController();
-        Animator = new StandardPlayerAnimator();
-        CameraMode = new FirstPersonCamera();
+	private void TickInventorySlot()
+	{
+		if ( Input.Pressed( InputButton.Slot1 ) ) Inventory.SetActiveSlot( 0 );
+		if ( Input.Pressed( InputButton.Slot2 ) ) Inventory.SetActiveSlot( 1 );
+		if ( Input.Pressed( InputButton.Slot3 ) ) Inventory.SetActiveSlot( 2 );
+		if ( Input.Pressed( InputButton.Slot4 ) ) Inventory.SetActiveSlot( 3 );
+		if ( Input.Pressed( InputButton.Slot5 ) ) Inventory.SetActiveSlot( 4 );
+		if ( Input.Pressed( InputButton.Slot6 ) ) Inventory.SetActiveSlot( 5 );
+		if ( Input.Pressed( InputButton.Slot7 ) ) Inventory.SetActiveSlot( 6 );
+		if ( Input.Pressed( InputButton.Slot8 ) ) Inventory.SetActiveSlot( 7 );
+		if ( Input.Pressed( InputButton.Slot9 ) ) Inventory.SetActiveSlot( 8 );
+	}
 
-        LifeState = LifeState.Alive;
-        Health = 100;
-        Velocity = Vector3.Zero;
-        WaterLevel = 0;
+	public override void Simulate( Client cl )
+	{
+		if ( LifeState == LifeState.Dead )
+		{
+			if ( timeSinceDied > 3 && IsServer )
+			{
+				Respawn();
+			}
 
-        CreateHull();
+			return;
+		}
 
-        Game.Current?.MoveToSpawnpoint( this );
-        ResetInterpolation();
-    }
+		Controller?.Simulate( cl, this, Animator );
+		SimulateActiveChild( cl, ActiveChild );
+		TickPlayerUse();
+		TickInventorySlot();
+	}
 
-    private void TickInventorySlot()
-    {
-        if ( Input.Pressed( InputButton.Slot1 ) ) Inventory.SetActiveSlot( 0 );
-        if ( Input.Pressed( InputButton.Slot2 ) ) Inventory.SetActiveSlot( 1 );
-        if ( Input.Pressed( InputButton.Slot3 ) ) Inventory.SetActiveSlot( 2 );
-        if ( Input.Pressed( InputButton.Slot4 ) ) Inventory.SetActiveSlot( 3 );
-        if ( Input.Pressed( InputButton.Slot5 ) ) Inventory.SetActiveSlot( 4 );
-        if ( Input.Pressed( InputButton.Slot6 ) ) Inventory.SetActiveSlot( 5 );
-        if ( Input.Pressed( InputButton.Slot7 ) ) Inventory.SetActiveSlot( 6 );
-        if ( Input.Pressed( InputButton.Slot8 ) ) Inventory.SetActiveSlot( 7 );
-        if ( Input.Pressed( InputButton.Slot9 ) ) Inventory.SetActiveSlot( 8 );
-    }
+	public override void FrameSimulate( Client cl )
+	{
+		base.FrameSimulate( cl );
 
-    public override void Simulate( Client cl )
-    {
-        if ( LifeState == LifeState.Dead )
-        {
-            if ( timeSinceDied > 3 && IsServer )
-            {
-                Respawn();
-            }
+		Controller?.FrameSimulate( cl, this, Animator );
 
-            return;
-        }
+		DebugOverlay.ScreenText( "[PLAYER]\n" +
+			$"ActiveChild:                 {ActiveChild}\n" +
+			$"LastActiveChild:             {LastActiveChild}\n" +
+			$"Health:                      {Health}\n" +
+			$"God:                         {IsInvincible}",
+			new Vector2( 60, 150 ) );
 
-        Controller?.Simulate( cl, this, Animator );
-        SimulateActiveChild( cl, ActiveChild );
-        TickPlayerUse();
-        TickInventorySlot();
-    }
+		DebugOverlay.ScreenText( "[INVENTORY]\n" +
+			$"ActiveSlot:                  {Inventory.GetActiveSlot()}\n" +
+			$"Active:                      {Inventory.Active}\n" +
+			$"Slot 0:                      {Inventory.GetSlot( 0 )}\n" +
+			$"Slot 1:                      {Inventory.GetSlot( 1 )}\n" +
+			$"Slot 2:                      {Inventory.GetSlot( 2 )}\n" +
+			$"Slot 3:                      {Inventory.GetSlot( 3 )}\n" +
+			$"Slot 4:                      {Inventory.GetSlot( 4 )}\n" +
+			$"Slot 5:                      {Inventory.GetSlot( 5 )}\n" +
+			$"Slot 6:                      {Inventory.GetSlot( 6 )}\n" +
+			$"Slot 7:                      {Inventory.GetSlot( 7 )}\n" +
+			$"Slot 8:                      {Inventory.GetSlot( 8 )}\n" +
+			$"Slot 9:                      {Inventory.GetSlot( 9 )}\n",
+			new Vector2( 60, 350 ) );
+	}
 
-    public override void FrameSimulate( Client cl )
-    {
-        base.FrameSimulate( cl );
+	public override void TakeDamage( DamageInfo info )
+	{
+		if ( LifeState == LifeState.Dead )
+			return;
 
-        Controller?.FrameSimulate( cl, this, Animator );
+		if ( IsInvincible && info.Attacker.IsValid() )
+			return;
 
-        DebugOverlay.ScreenText( "[PLAYER]\n" +
-            $"ActiveChild:                 {ActiveChild}\n" +
-            $"LastActiveChild:             {LastActiveChild}\n" +
-            $"Health:                      {Health}\n" +
-            $"God:                         {IsInvincible}",
-            new Vector2( 60, 150 ) );
+		base.TakeDamage( info );
+		this.ProceduralHitReaction( info );
 
-        DebugOverlay.ScreenText( "[INVENTORY]\n" +
-            $"ActiveSlot:                  {Inventory.GetActiveSlot()}\n" +
-            $"Active:                      {Inventory.Active}\n" +
-            $"Slot 0:                      {Inventory.GetSlot( 0 )}\n" +
-            $"Slot 1:                      {Inventory.GetSlot( 1 )}\n" +
-            $"Slot 2:                      {Inventory.GetSlot( 2 )}\n" +
-            $"Slot 3:                      {Inventory.GetSlot( 3 )}\n" +
-            $"Slot 4:                      {Inventory.GetSlot( 4 )}\n" +
-            $"Slot 5:                      {Inventory.GetSlot( 5 )}\n" +
-            $"Slot 6:                      {Inventory.GetSlot( 6 )}\n" +
-            $"Slot 7:                      {Inventory.GetSlot( 7 )}\n" +
-            $"Slot 8:                      {Inventory.GetSlot( 8 )}\n" +
-            $"Slot 9:                      {Inventory.GetSlot( 9 )}\n",
-            new Vector2( 60, 350 ) );
-    }
+		// Add a score to the killer
+		if ( LifeState == LifeState.Dead && info.Attacker != null )
+		{
+			if ( info.Attacker.Client != null && info.Attacker != this )
+			{
+				info.Attacker.Client.AddInt( "kills" );
+			}
+		}
 
-    public override void TakeDamage( DamageInfo info )
-    {
-        if ( LifeState == LifeState.Dead )
-            return;
+		// Tell attacker that they did damage to us
+		if ( IsServer )
+		{
+			RpcDamageDealt( To.Single( info.Attacker ), this.LifeState == LifeState.Dead, NetworkIdent );
+		}
+	}
 
-        if ( IsInvincible && info.Attacker.IsValid() )
-            return;
-
-        base.TakeDamage( info );
-        this.ProceduralHitReaction( info );
-
-        // Add a score to the killer
-        if ( LifeState == LifeState.Dead && info.Attacker != null )
-        {
-            if ( info.Attacker.Client != null && info.Attacker != this )
-            {
-                info.Attacker.Client.AddInt( "kills" );
-            }
-        }
-
-        // Tell attacker that they did damage to us
-        if ( IsServer )
-        {
-            RpcDamageDealt( To.Single( info.Attacker ), this.LifeState == LifeState.Dead, NetworkIdent );
-        }
-    }
-
-    public void RenderHud( Vector2 screenSize )
-    {
-        if ( ActiveChild is BaseWeapon weapon )
-        {
-            weapon.RenderHud( screenSize );
-        }
-    }
+	public void RenderHud( Vector2 screenSize )
+	{
+		if ( ActiveChild is BaseWeapon weapon )
+		{
+			weapon.RenderHud( screenSize );
+		}
+	}
 }
