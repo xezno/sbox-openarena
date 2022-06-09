@@ -24,8 +24,6 @@ public partial class BaseWeapon : BaseCarriable
 
 	private void LoadWeaponData()
 	{
-		Log.Trace( $"Loaded weapon data on {( IsServer ? "Server" : "Client" )}" );
-
 		var typeName = this.GetLibraryName();
 		WeaponData = ResourceLibrary.GetAll<WeaponDataAsset>().FirstOrDefault( x => x.LibraryName == typeName );
 
@@ -37,8 +35,6 @@ public partial class BaseWeapon : BaseCarriable
 
 	public override void CreateViewModel()
 	{
-		Log.Trace( $"CreateViewModel start {this}" );
-
 		Host.AssertClient();
 
 		if ( string.IsNullOrEmpty( WeaponData.ViewModel ) )
@@ -49,8 +45,6 @@ public partial class BaseWeapon : BaseCarriable
 		ViewModelEntity.Owner = Owner;
 		ViewModelEntity.EnableViewmodelRendering = true;
 		ViewModelEntity.SetModel( WeaponData.ViewModel );
-
-		Log.Trace( $"CreateViewModel end {this}" );
 	}
 
 	[Net, Predicted]

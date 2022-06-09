@@ -61,7 +61,6 @@ public class BaseCarriable : AnimatedEntity
 	/// </summary>
 	public virtual void ActiveStart( Entity ent )
 	{
-		Log.Trace( $"ActiveStart {this}" );
 		EnableDrawing = true;
 
 		if ( ent is Player player )
@@ -94,7 +93,6 @@ public class BaseCarriable : AnimatedEntity
 	/// </summary>
 	public virtual void ActiveEnd( Entity ent, bool dropped )
 	{
-		Log.Trace( $"ActiveEnd {this}" );
 		//
 		// If we're just holstering, then hide us
 		//
@@ -134,12 +132,8 @@ public class BaseCarriable : AnimatedEntity
 	/// </summary>
 	public virtual void DestroyViewModel()
 	{
-		Log.Trace( $"DestroyViewModel start {this}" );
-
 		ViewModelEntity?.Delete();
 		ViewModelEntity = null;
-
-		Log.Trace( $"DestroyViewModel end {this}" );
 	}
 
 	public virtual void CreateHudElements()
