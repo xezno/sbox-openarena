@@ -48,7 +48,7 @@ public class LightningGun : BaseWeapon
 
 		if ( particles == null )
 		{
-			Entity effectEntity = ( IsLocalPawn ) ? ViewModelEntity : this;
+			Entity effectEntity =  IsLocalPawn  ? ViewModelEntity : this;
 			particles = Particles.Create( "particles/physgun_beam.vpcf", effectEntity, "muzzle" );
 		}
 

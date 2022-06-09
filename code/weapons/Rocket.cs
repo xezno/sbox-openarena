@@ -29,7 +29,7 @@ public class Rocket : ModelEntity
 			{
 				// Explode
 				ArenaGame.Explode( tr.EndPosition, 10f, Owner );
-				this.Delete();
+				Delete();
 			}
 		}
 

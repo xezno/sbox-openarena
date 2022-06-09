@@ -3,166 +3,166 @@
 [Title( "Player" ), Icon( "emoji_people" )]
 public partial class Player : AnimatedEntity
 {
-    [Net, Predicted] public PawnController Controller { get; set; }
-    [Net, Predicted] public PawnAnimator Animator { get; set; }
-    [Net, Predicted] public Entity ActiveChild { get; set; }
-    public Entity LastActiveChild { get; set; }
+	[Net, Predicted] public PawnController Controller { get; set; }
+	[Net, Predicted] public PawnAnimator Animator { get; set; }
+	[Net, Predicted] public Entity ActiveChild { get; set; }
+	public Entity LastActiveChild { get; set; }
 
-    public Inventory Inventory { get; protected set; }
+	public Inventory Inventory { get; protected set; }
 
-    public CameraMode CameraMode
-    {
-        get => Components.Get<CameraMode>();
-        set => Components.Add( value );
-    }
+	public CameraMode CameraMode
+	{
+		get => Components.Get<CameraMode>();
+		set => Components.Add( value );
+	}
 
-    private TimeSince timeSinceDied;
-    private TimeSince timeSinceLastFootstep = 0;
+	private TimeSince timeSinceDied;
+	private TimeSince timeSinceLastFootstep = 0;
 
-    public ModelEntity Corpse { get; set; }
+	public ModelEntity Corpse { get; set; }
 
-    public override void Spawn()
-    {
-        EnableLagCompensation = true;
+	public override void Spawn()
+	{
+		EnableLagCompensation = true;
 
-        Tags.Add( "player" );
+		Tags.Add( "player" );
 
-        base.Spawn();
-    }
+		base.Spawn();
+	}
 
-    public Player()
-    {
-        Inventory = new Inventory( this );
-    }
+	public Player()
+	{
+		Inventory = new Inventory( this );
+	}
 
-    public override void OnKilled()
-    {
-        Game.Current?.OnKilled( this );
-        Client?.AddInt( "deaths", 1 );
+	public override void OnKilled()
+	{
+		Game.Current?.OnKilled( this );
+		Client?.AddInt( "deaths", 1 );
 
-        timeSinceDied = 0;
-        LifeState = LifeState.Dead;
-        StopUsing();
+		timeSinceDied = 0;
+		LifeState = LifeState.Dead;
+		StopUsing();
 
-        Inventory.DeleteContents();
-        ActiveChild = null;
-        LastActiveChild = null;
+		Inventory.DeleteContents();
+		ActiveChild = null;
+		LastActiveChild = null;
 
-        CameraMode = new SpectateRagdollCamera();
-        EnableDrawing = false;
-        BecomeRagdollOnClient( To.Everyone );
-    }
+		CameraMode = new SpectateRagdollCamera();
+		EnableDrawing = false;
+		BecomeRagdollOnClient( To.Everyone );
+	}
 
-    public virtual void CreateHull()
-    {
-        CollisionGroup = CollisionGroup.Player;
-        AddCollisionLayer( CollisionLayer.Player );
-        SetupPhysicsFromAABB( PhysicsMotionType.Keyframed, new Vector3( -16, -16, 0 ), new Vector3( 16, 16, 72 ) );
+	public virtual void CreateHull()
+	{
+		CollisionGroup = CollisionGroup.Player;
+		AddCollisionLayer( CollisionLayer.Player );
+		SetupPhysicsFromAABB( PhysicsMotionType.Keyframed, new Vector3( -16, -16, 0 ), new Vector3( 16, 16, 72 ) );
 
-        MoveType = MoveType.MOVETYPE_WALK;
-        EnableHitboxes = true;
-    }
+		MoveType = MoveType.MOVETYPE_WALK;
+		EnableHitboxes = true;
+	}
 
-    public override void BuildInput( InputBuilder input )
-    {
-        if ( input.StopProcessing )
-            return;
+	public override void BuildInput( InputBuilder input )
+	{
+		if ( input.StopProcessing )
+			return;
 
-        if ( IsZooming )
-            input.ViewAngles = Angles.Lerp( input.ViewAngles, input.OriginalViewAngles, 0.5f );
+		if ( IsZooming )
+			input.ViewAngles = Angles.Lerp( input.ViewAngles, input.OriginalViewAngles, 0.5f );
 
-        ActiveChild?.BuildInput( input );
-        Controller?.BuildInput( input );
+		ActiveChild?.BuildInput( input );
+		Controller?.BuildInput( input );
 
-        if ( input.StopProcessing )
-            return;
+		if ( input.StopProcessing )
+			return;
 
-        Animator?.BuildInput( input );
-    }
+		Animator?.BuildInput( input );
+	}
 
-    public override void OnAnimEventFootstep( Vector3 pos, int foot, float volume )
-    {
-        if ( LifeState != LifeState.Alive )
-            return;
+	public override void OnAnimEventFootstep( Vector3 pos, int foot, float volume )
+	{
+		if ( LifeState != LifeState.Alive )
+			return;
 
-        if ( !IsClient )
-            return;
+		if ( !IsClient )
+			return;
 
-        if ( timeSinceLastFootstep < 0.2f )
-            return;
+		if ( timeSinceLastFootstep < 0.2f )
+			return;
 
-        volume *= FootstepVolume();
-        timeSinceLastFootstep = 0;
+		volume *= FootstepVolume();
+		timeSinceLastFootstep = 0;
 
-        var tr = Trace.Ray( pos, pos + Vector3.Down * 20 )
-            .Radius( 1 )
-            .Ignore( this )
-            .Run();
+		var tr = Trace.Ray( pos, pos + Vector3.Down * 20 )
+			.Radius( 1 )
+			.Ignore( this )
+			.Run();
 
-        if ( !tr.Hit ) return;
+		if ( !tr.Hit ) return;
 
-        tr.Surface.DoFootstep( this, tr, foot, volume );
-    }
+		tr.Surface.DoFootstep( this, tr, foot, volume );
+	}
 
-    public virtual float FootstepVolume()
-    {
-        return Velocity.WithZ( 0 ).Length.LerpInverse( 0.0f, 200.0f ) * 0.2f;
-    }
+	public virtual float FootstepVolume()
+	{
+		return Velocity.WithZ( 0 ).Length.LerpInverse( 0.0f, 200.0f ) * 0.2f;
+	}
 
-    public override void StartTouch( Entity other )
-    {
-        if ( IsClient ) return;
+	public override void StartTouch( Entity other )
+	{
+		if ( IsClient ) return;
 
-        if ( other is PickupTrigger )
-        {
-            StartTouch( other.Parent );
-            return;
-        }
+		if ( other is PickupTrigger )
+		{
+			StartTouch( other.Parent );
+			return;
+		}
 
-        Inventory?.Add( other, Inventory.Active == null );
-    }
+		Inventory?.Add( other, Inventory.Active == null );
+	}
 
-    public virtual void SimulateActiveChild( Client cl, Entity child )
-    {
-        if ( LastActiveChild != ActiveChild )
-        {
-            Log.Trace( $"{LastActiveChild} is not {ActiveChild}" );
+	public virtual void SimulateActiveChild( Client cl, Entity child )
+	{
+		if ( LastActiveChild != ActiveChild )
+		{
+			Log.Trace( $"{LastActiveChild} is not {ActiveChild}" );
 
-            if ( LastActiveChild is BaseCarriable previousBc )
-                previousBc?.ActiveEnd( Owner, previousBc.Owner != Owner );
+			if ( LastActiveChild is BaseCarriable previousBc )
+				previousBc?.ActiveEnd( Owner, previousBc.Owner != Owner );
 
-            if ( ActiveChild is BaseCarriable nextBc )
-                nextBc?.ActiveStart( Owner );
-        }
+			if ( ActiveChild is BaseCarriable nextBc )
+				nextBc?.ActiveStart( Owner );
+		}
 
-        LastActiveChild = ActiveChild;
+		LastActiveChild = ActiveChild;
 
-        if ( !ActiveChild.IsValid() )
-            return;
+		if ( !ActiveChild.IsValid() )
+			return;
 
-        if ( ActiveChild.IsAuthority )
-            ActiveChild.Simulate( cl );
-    }
+		if ( ActiveChild.IsAuthority )
+			ActiveChild.Simulate( cl );
+	}
 
-    public override void OnChildAdded( Entity child )
-    {
-        Inventory?.OnChildAdded( child );
-    }
+	public override void OnChildAdded( Entity child )
+	{
+		Inventory?.OnChildAdded( child );
+	}
 
-    public override void OnChildRemoved( Entity child )
-    {
-        Inventory?.OnChildRemoved( child );
-    }
+	public override void OnChildRemoved( Entity child )
+	{
+		Inventory?.OnChildRemoved( child );
+	}
 
-    [ClientRpc]
-    public void RpcDamageDealt( bool isKill, int victimNetworkId )
-    {
-        var victim = Entity.All.OfType<Player>().First( x => x.NetworkIdent == victimNetworkId );
-        Log.Trace( $"We did damage to {victim}" );
+	[ClientRpc]
+	public void RpcDamageDealt( bool isKill, int victimNetworkId )
+	{
+		var victim = All.OfType<Player>().First( x => x.NetworkIdent == victimNetworkId );
+		Log.Trace( $"We did damage to {victim}" );
 
-        if ( isKill )
-            PlaySound( "kill" );
-        else
-            PlaySound( "hit" );
-    }
+		if ( isKill )
+			PlaySound( "kill" );
+		else
+			PlaySound( "hit" );
+	}
 }

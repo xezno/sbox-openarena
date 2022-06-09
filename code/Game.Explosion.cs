@@ -8,7 +8,7 @@ partial class ArenaGame
 
 		var sourcePos = position;
 		var radius = 256f;
-		var overlaps = Entity.All.Where( x => Vector3.DistanceBetween( sourcePos, x.Position ) <= radius ).ToList();
+		var overlaps = All.Where( x => Vector3.DistanceBetween( sourcePos, x.Position ) <= radius ).ToList();
 
 		foreach ( var overlap in overlaps )
 		{
