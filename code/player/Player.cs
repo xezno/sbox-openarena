@@ -107,7 +107,7 @@ partial class Player
 
 		if ( LifeState == LifeState.Dead )
 		{
-			RpcOnDeath( To.Single( this ), info.Attacker.NetworkIdent );
+			RpcOnDeath( To.Single( this ), info.Attacker?.NetworkIdent ?? -1 );
 
 			if ( info.Attacker != null && info.Attacker.Client != null && info.Attacker != this )
 			{
@@ -132,14 +132,14 @@ partial class Player
 	[ClientRpc]
 	public void RpcOnKill( int victimIdent )
 	{
-		var victim = Entity.All.OfType<Player>().First( x => x.NetworkIdent == victimIdent );
+		var victim = Entity.All.OfType<Player>().FirstOrDefault( x => x.NetworkIdent == victimIdent );
 		Event.Run( ArenaEvent.Player.Kill.Name, victim );
 	}
 
 	[ClientRpc]
 	public void RpcOnDeath( int attackerIdent )
 	{
-		var attacker = Entity.All.OfType<Player>().First( x => x.NetworkIdent == attackerIdent );
+		var attacker = Entity.All.OfType<Player>().FirstOrDefault( x => x.NetworkIdent == attackerIdent );
 		Event.Run( ArenaEvent.Player.Death.Name, attacker );
 	}
 
