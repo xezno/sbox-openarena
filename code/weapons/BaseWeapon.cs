@@ -1,9 +1,5 @@
 ﻿namespace OpenArena;
 
-/// <summary>
-/// A common base we can use for weapons so we don't have to implement the logic over and over
-/// again. Feel free to not use this and to implement it however you want to.
-/// </summary>
 [Title( "Base Weapon" ), Icon( "sports_martial_arts" )]
 public partial class BaseWeapon : BaseCarriable
 {
@@ -22,14 +18,6 @@ public partial class BaseWeapon : BaseCarriable
 
 	public override void Simulate( Client player )
 	{
-		if ( CanReload() )
-		{
-			Reload();
-		}
-
-		//
-		// Reload could have changed our owner
-		//
 		if ( !Owner.IsValid() )
 			return;
 
@@ -41,18 +29,6 @@ public partial class BaseWeapon : BaseCarriable
 				AttackPrimary();
 			}
 		}
-	}
-
-	public virtual bool CanReload()
-	{
-		if ( !Owner.IsValid() || !Input.Down( InputButton.Reload ) ) return false;
-
-		return true;
-	}
-
-	public virtual void Reload()
-	{
-
 	}
 
 	public virtual bool CanPrimaryAttack()
@@ -88,10 +64,6 @@ public partial class BaseWeapon : BaseCarriable
 				.Run();
 
 		yield return tr;
-
-		//
-		// Another trace, bullet going through thin material, penetrating water surface?
-		//
 	}
 
 	public override Sound PlaySound( string soundName, string attachment )

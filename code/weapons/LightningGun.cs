@@ -16,14 +16,6 @@ public class LightningGun : BaseWeapon
 
 	public override void Simulate( Client player )
 	{
-		if ( CanReload() )
-		{
-			Reload();
-		}
-
-		//
-		// Reload could have changed our owner
-		//
 		if ( !Owner.IsValid() )
 			return;
 
@@ -48,7 +40,7 @@ public class LightningGun : BaseWeapon
 
 		if ( particles == null )
 		{
-			Entity effectEntity =  IsLocalPawn  ? ViewModelEntity : this;
+			Entity effectEntity = IsLocalPawn ? ViewModelEntity : this;
 			particles = Particles.Create( "particles/physgun_beam.vpcf", effectEntity, "muzzle" );
 		}
 
