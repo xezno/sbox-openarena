@@ -11,6 +11,16 @@ public class LightningGun : BaseWeapon
 		base.Spawn();
 	}
 
+	public override bool CanPrimaryAttack()
+	{
+		bool isFiring = WeaponData.AutoFire ? Input.Down( InputButton.PrimaryAttack )
+											: Input.Pressed( InputButton.PrimaryAttack );
+
+		if ( !Owner.IsValid() || !isFiring ) return false;
+		return true;
+	}
+
+
 	public override void Simulate( Client player )
 	{
 		if ( !Owner.IsValid() )
@@ -36,20 +46,20 @@ public class LightningGun : BaseWeapon
 		if ( particles == null )
 		{
 			Entity effectEntity = IsLocalPawn ? ViewModelEntity : this;
-			particles = Particles.Create( "particles/physgun_beam.vpcf", effectEntity, "muzzle" );
+			particles = Particles.Create( "particles/lightning.vpcf", effectEntity, "muzzle" );
 		}
 
 		var tr = TraceBullet();
 		particles.SetPosition( 1, tr.EndPosition );
 
-		if ( tr.Hit && timeSinceDamaged > 0.1f )
+		if ( tr.Hit && timeSinceDamaged > ( 1 / WeaponData.Rate ) )
 		{
 			tr.Surface.DoBulletImpact( tr );
 
 			if ( tr.Entity.IsValid() && !tr.Entity.IsWorld )
 			{
 				tr.Entity.TakeDamage( DamageInfo
-					.FromBullet( tr.EndPosition, tr.Direction * 32, 15f )
+					.FromBullet( tr.EndPosition, tr.Direction * 32, WeaponData.Damage )
 					.WithAttacker( Owner ) );
 			}
 
