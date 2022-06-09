@@ -1,6 +1,7 @@
 ﻿global using Sandbox;
-global using SandboxEditor;
+global using Sandbox.UI;
 global using Sandbox.UI.Construct;
+global using SandboxEditor;
 global using System;
 global using System.IO;
 global using System.Linq;
@@ -14,6 +15,8 @@ public partial class ArenaGame : Sandbox.Game
 {
 	public ArenaGame()
 	{
+		if ( IsServer )
+			_ = new Hud();
 	}
 
 	public override void ClientJoined( Client client )

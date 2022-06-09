@@ -1,0 +1,28 @@
+﻿@import "/ui/_Theme.scss";
+
+text, label {
+    font-family: $font;
+}
+
+icon, iconpanel {
+    font-family: MaterialIcons;
+}
+
+
+text.big, label.big {
+    font-size: 96px;
+}
+
+text.medium, label.medium {
+    font-size: 48px;
+}
+
+.bottom {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    left: $safe-area-x;
+    right: $safe-area-x;
+    bottom: $safe-area-y;
+}

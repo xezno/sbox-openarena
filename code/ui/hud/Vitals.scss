@@ -1,0 +1,79 @@
+﻿@import "/ui/_Theme.scss";
+
+Vitals {
+    font-weight: 800;
+
+    .health {
+        color: $health;
+        text-align: right;
+
+        &.low {
+            animation-name: low;
+            animation-duration: 0.5s;
+            animation-direction: alternate;
+            animation-timing-function: ease-in;
+        }
+    }
+
+
+    .shields {
+        color: $shields;
+        text-align: left;
+    }
+
+    .health, .shields, .ammo {
+        margin: 0 4px;
+        align-items: center;
+        justify-content: center;
+
+        icon {
+            padding: 4px;
+            margin: 0px 8px;
+            font-size: 32px;
+            background-color: $background;
+            border-radius: 4px;
+        }
+    }
+
+    .ammo {
+        flex-direction: column;
+        color: $ammo;
+        text-align: center;
+        padding: 0 40px;
+
+        .big {
+            margin-bottom: 0;
+        }
+
+        icon {
+            position: absolute;
+            bottom: -24px;
+        }
+    }
+
+    .big {
+        width: 150px;
+        text-shadow: 0 2px 2px rgba( black, 0.25 );
+    }
+}
+
+@keyframes rotation {
+    0% {
+        transform: rotate( 0deg );
+    }
+
+    100% {
+        transform: rotate( 360deg );
+    }
+}
+
+
+@keyframes low {
+    0% {
+        color: red;
+    }
+
+    100% {
+        color: white;
+    }
+}

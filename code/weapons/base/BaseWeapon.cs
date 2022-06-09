@@ -5,6 +5,8 @@ public partial class BaseWeapon : BaseCarriable
 {
 	protected WeaponDataAsset WeaponData { get; private set; }
 
+	public int Ammo { get; set; } = 100;
+
 	public override void Spawn()
 	{
 		base.Spawn();
