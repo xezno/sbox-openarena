@@ -93,6 +93,9 @@ public class BaseCarriable : AnimatedEntity
 	/// </summary>
 	public virtual void ActiveEnd( Entity ent, bool dropped )
 	{
+		if ( !this.IsValid() )
+			return;
+
 		EnableDrawing = false;
 
 		if ( IsClient )
