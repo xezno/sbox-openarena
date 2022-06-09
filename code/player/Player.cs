@@ -108,7 +108,7 @@ partial class Player
 		}
 
 		// Tell attacker that they did damage to us
-		if ( IsServer )
+		if ( IsServer && info.Attacker != this )
 		{
 			RpcDamageDealt( To.Single( info.Attacker ), LifeState == LifeState.Dead, NetworkIdent );
 		}
