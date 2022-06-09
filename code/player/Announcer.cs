@@ -25,11 +25,14 @@ public class Announcer : Entity
 	[Event.Tick.Client]
 	public void OnTick()
 	{
+		var queueString = string.Join( ", ", SoundQueue.Select( x => x.ToString() ).ToList() );
+
 		DebugOverlay.ScreenText( "[ANNOUNCER]\n" +
 			$"CurrentKillStreak:           {CurrentKillStreak}\n" +
 			$"FastKillStreak:              {FastKillStreak}\n" +
 			$"TimeSinceLastKill:           {TimeSinceLastKill}\n" +
-			$"Sound Queue Count:           {SoundQueue.Count}",
+			$"Sound Queue Count:           {SoundQueue.Count}\n" +
+			$"Sound Queue:                 {queueString}",
 			new Vector2( 60, 600 ) );
 
 		//
