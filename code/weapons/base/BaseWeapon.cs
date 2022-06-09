@@ -135,10 +135,11 @@ public partial class BaseWeapon : BaseCarriable
 		Entity effectEntity = IsLocalPawn ? ViewModelEntity : this;
 
 		var start = ( effectEntity as ModelEntity ).GetAttachment( "muzzle" ) ?? default;
-		var tracerParticles = Particles.Create( WeaponData.TracerParticles, effectEntity, "muzzle" );
-		tracerParticles.SetPosition( 1, tr.EndPosition );
+		var startPosition = start.Position + ( tr.Direction * 300 );
+		var endPosition = tr.EndPosition;
 
-		DebugOverlay.Line( start.Position, tr.EndPosition, 5f );
+		var tracerParticles = Particles.Create( WeaponData.TracerParticles, startPosition );
+		tracerParticles.SetPosition( 1, endPosition );
 
 		_ = Particles.Create( WeaponData.MuzzleFlashParticles, effectEntity, "muzzle" );
 
