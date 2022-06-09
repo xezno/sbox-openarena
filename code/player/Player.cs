@@ -67,6 +67,14 @@ partial class Player
 		SimulateActiveChild( cl, ActiveChild );
 		TickPlayerUse();
 		TickInventorySlot();
+
+		if ( Input.Pressed( InputButton.View ) )
+		{
+			if ( CameraMode is FirstPersonCamera )
+				CameraMode = new ThirdPersonCamera();
+			else
+				CameraMode = new FirstPersonCamera();
+		}
 	}
 
 	public override void FrameSimulate( Client cl )
