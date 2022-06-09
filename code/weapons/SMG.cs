@@ -1,12 +1,8 @@
 ﻿namespace OpenArena;
 
+[Library( "oa_weapon_smg" )]
 public class SMG : BaseWeapon
 {
-	public override string ViewModelPath => "weapons/rust_smg/v_rust_smg.vmdl";
-	public override float Rate => 10;
-	public override string WorldModel => "weapons/rust_smg/rust_smg.vmdl";
-	public override string FireSound => "rust_smg.shoot";
-
 	public override void RenderHud( Vector2 screenSize )
 	{
 		var draw = Render.Draw2D;

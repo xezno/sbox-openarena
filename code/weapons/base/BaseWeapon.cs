@@ -1,25 +1,56 @@
-﻿using Sandbox.UI.Tests;
-
-namespace OpenArena;
+﻿namespace OpenArena;
 
 [Title( "Base Weapon" ), Icon( "sports_martial_arts" )]
 public partial class BaseWeapon : BaseCarriable
 {
-	public virtual string WorldModel => "";
-	public virtual bool AutoFire => true;
-	public virtual float Rate => 5.0f;
-	public virtual string FireSound => "rust_pistol.shoot";
-	public virtual float Damage => 10f;
-	public virtual string MuzzleFlashParticles => "particles/pistol_muzzleflash.vpcf";
-	public virtual string TracerParticles => "particles/tracer.vpcf";
+	protected WeaponDataAsset WeaponData { get; private set; }
 
 	public override void Spawn()
 	{
 		base.Spawn();
-		SetModel( WorldModel );
+		LoadWeaponData();
+
+		SetModel( WeaponData.WorldModel );
 
 		CollisionGroup = CollisionGroup.Weapon; // so players touch it as a trigger but not as a solid
 		SetInteractsAs( CollisionLayer.Debris ); // so player movement doesn't walk into it
+	}
+
+	public override void ClientSpawn()
+	{
+		base.ClientSpawn();
+		LoadWeaponData();
+	}
+
+	private void LoadWeaponData()
+	{
+		Log.Trace( $"Loaded weapon data on {( IsServer ? "Server" : "Client" )}" );
+
+		var typeName = this.GetLibraryName();
+		WeaponData = ResourceLibrary.GetAll<WeaponDataAsset>().FirstOrDefault( x => x.LibraryName == typeName );
+
+		if ( WeaponData == null )
+		{
+			throw new Exception( $"No matching weapon data asset for '{typeName}'" );
+		}
+	}
+
+	public override void CreateViewModel()
+	{
+		Log.Trace( $"CreateViewModel start {this}" );
+
+		Host.AssertClient();
+
+		if ( string.IsNullOrEmpty( WeaponData.ViewModel ) )
+			return;
+
+		ViewModelEntity = new ViewModel();
+		ViewModelEntity.Position = Position;
+		ViewModelEntity.Owner = Owner;
+		ViewModelEntity.EnableViewmodelRendering = true;
+		ViewModelEntity.SetModel( WeaponData.ViewModel );
+
+		Log.Trace( $"CreateViewModel end {this}" );
 	}
 
 	[Net, Predicted]
@@ -42,12 +73,12 @@ public partial class BaseWeapon : BaseCarriable
 
 	public virtual bool CanPrimaryAttack()
 	{
-		bool isFiring = AutoFire ? Input.Down( InputButton.PrimaryAttack )
-								 : Input.Pressed( InputButton.PrimaryAttack );
+		bool isFiring = WeaponData.AutoFire ? Input.Down( InputButton.PrimaryAttack )
+											: Input.Pressed( InputButton.PrimaryAttack );
 
 		if ( !Owner.IsValid() || !isFiring ) return false;
 
-		var rate = Rate;
+		var rate = WeaponData.Rate;
 		if ( rate <= 0 ) return true;
 
 		return TimeSinceAttack > ( 1 / rate );
@@ -71,7 +102,7 @@ public partial class BaseWeapon : BaseCarriable
 			if ( tr.Entity.IsValid() && !tr.Entity.IsWorld )
 			{
 				tr.Entity.TakeDamage( DamageInfo
-					.FromBullet( tr.EndPosition, tr.Direction * 32, Damage )
+					.FromBullet( tr.EndPosition, tr.Direction * 32, WeaponData.Damage )
 					.WithAttacker( Owner ) );
 			}
 		}
@@ -89,13 +120,13 @@ public partial class BaseWeapon : BaseCarriable
 	{
 		Entity effectEntity = IsLocalPawn ? ViewModelEntity : this;
 
-		var tracerParticles = Particles.Create( TracerParticles, effectEntity, "muzzle" );
+		var tracerParticles = Particles.Create( WeaponData.TracerParticles, effectEntity, "muzzle" );
 		tracerParticles.SetPosition( 1, tr.EndPosition );
 
-		_ = Particles.Create( MuzzleFlashParticles, effectEntity, "muzzle" );
+		_ = Particles.Create( WeaponData.MuzzleFlashParticles, effectEntity, "muzzle" );
 
 		ViewModelEntity?.SetAnimParameter( "fire", true );
-		PlaySound( FireSound );
+		PlaySound( WeaponData.FireSound );
 	}
 
 	public virtual TraceResult TraceBullet()

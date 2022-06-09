@@ -1,12 +1,8 @@
 ﻿namespace OpenArena;
 
+[Library( "oa_weapon_pistol" )]
 public class Pistol : BaseWeapon
 {
-	public override string ViewModelPath => "weapons/rust_pistol/v_rust_pistol.vmdl";
-	public override string WorldModel => "weapons/rust_pistol/rust_pistol.vmdl";
-	public override float Rate => 5;
-	public override bool AutoFire => false;
-
 	public override void RenderHud( Vector2 screenSize )
 	{
 		var draw = Render.Draw2D;

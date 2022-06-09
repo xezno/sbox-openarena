@@ -1,14 +1,8 @@
 ﻿namespace OpenArena;
 
+[Library( "oa_weapon_railgun" )]
 public class Railgun : BaseWeapon
 {
-	public override string ViewModelPath => "weapons/rust_pumpshotgun/v_rust_pumpshotgun.vmdl";
-	public override float Rate => 1;
-	public override string WorldModel => "weapons/rust_pumpshotgun/rust_pumpshotgun.vmdl";
-	public override string FireSound => "rust_pumpshotgun.shoot";
-	public override string TracerParticles => "particles/beam.vpcf";
-	public override float Damage => 100;
-
 	protected override void CreateShootEffects( TraceResult tr )
 	{
 		Entity effectEntity = IsLocalPawn ? ViewModelEntity : this;
@@ -16,14 +10,14 @@ public class Railgun : BaseWeapon
 		var muzzleTransform = ( effectEntity as ModelEntity )?.GetAttachment( "muzzle" ) ?? default;
 		var startPosition = muzzleTransform.Position;
 
-		var tracerParticles = Particles.Create( TracerParticles, startPosition );
+		var tracerParticles = Particles.Create( WeaponData.TracerParticles, startPosition );
 		tracerParticles.SetForward( 0, tr.Direction );
 		tracerParticles.SetPosition( 1, tr.EndPosition );
 
-		_ = Particles.Create( MuzzleFlashParticles, effectEntity, "muzzle" );
+		_ = Particles.Create( WeaponData.MuzzleFlashParticles, effectEntity, "muzzle" );
 
 		ViewModelEntity?.SetAnimParameter( "fire", true );
-		PlaySound( FireSound );
+		PlaySound( WeaponData.FireSound );
 	}
 
 	public override void RenderHud( Vector2 screenSize )

@@ -6,7 +6,6 @@
 [Title( "Carriable" ), Icon( "luggage" )]
 public class BaseCarriable : AnimatedEntity
 {
-	public virtual string ViewModelPath => null;
 	public BaseViewModel ViewModelEntity { get; protected set; }
 
 	public override void Spawn()
@@ -128,20 +127,6 @@ public class BaseCarriable : AnimatedEntity
 	/// </summary>
 	public virtual void CreateViewModel()
 	{
-		Log.Trace( $"CreateViewModel start {this}" );
-
-		Host.AssertClient();
-
-		if ( string.IsNullOrEmpty( ViewModelPath ) )
-			return;
-
-		ViewModelEntity = new ViewModel();
-		ViewModelEntity.Position = Position;
-		ViewModelEntity.Owner = Owner;
-		ViewModelEntity.EnableViewmodelRendering = true;
-		ViewModelEntity.SetModel( ViewModelPath );
-
-		Log.Trace( $"CreateViewModel end {this}" );
 	}
 
 	/// <summary>

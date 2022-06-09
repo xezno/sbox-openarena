@@ -29,7 +29,6 @@ public partial class ArenaGame : Sandbox.Game
 	{
 		base.RenderHud();
 
-		var pawn = Local.Pawn;
 		if ( Local.Pawn is not Player player )
 			return;
 

@@ -1,0 +1,18 @@
+<!-- kv3 encoding:text:version{e21c7f3c-8a33-41c5-9977-a76d3a32aa0d} format:generic:version{7412167c-06e9-4698-aff2-e63eb59037e7} -->
+{
+	data = 
+	{
+		LibraryName = "oa_weapon_pistol"
+		Name = "Pistol"
+		Description = ""
+		Damage = 10
+		AutoFire = false
+		Rate = 5
+		Slot = 2
+		WorldModel = resource:"weapons/rust_pistol/rust_pistol.vmdl"
+		ViewModel = resource:"weapons/rust_pistol/v_rust_pistol.vmdl"
+		FireSound = resource:"weapons/rust_pistol/sound/rust_pistol.shoot.sound"
+		MuzzleFlashParticles = resource:"particles/pistol_muzzleflash.vpcf"
+		TracerParticles = resource:"particles/tracer.vpcf"
+	}
+}

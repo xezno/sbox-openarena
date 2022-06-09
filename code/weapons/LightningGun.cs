@@ -1,10 +1,8 @@
 ﻿namespace OpenArena;
 
+[Library( "oa_weapon_lightning_gun" )]
 public class LightningGun : BaseWeapon
 {
-	public override string ViewModelPath => "weapons/rust_smg/v_rust_smg.vmdl";
-	public override float Rate => -1;
-
 	private TimeSince timeSinceDamaged = 0f;
 	private Particles particles;
 

@@ -1,22 +1,9 @@
 ﻿namespace OpenArena;
 
-[Library( "ft_rocket_launcher" )]
+[Library( "oa_weapon_rpg" )]
 public class RocketLauncher : BaseWeapon
 {
 	private float Speed => 1000f;
-	public override float Rate => 1.0f;
-	public override string ViewModelPath => "weapons/rust_pistol/v_rust_pistol.vmdl";
-	public override string WorldModel => "weapons/rust_pistol/rust_pistol.vmdl";
-
-	public override bool CanPrimaryAttack()
-	{
-		if ( !Owner.IsValid() || !Input.Pressed( InputButton.PrimaryAttack ) ) return false;
-
-		var rate = Rate;
-		if ( rate <= 0 ) return true;
-
-		return TimeSinceAttack > ( 1 / rate );
-	}
 
 	public override void AttackPrimary()
 	{
