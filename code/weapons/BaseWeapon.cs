@@ -3,6 +3,7 @@
 [Title( "Base Weapon" ), Icon( "sports_martial_arts" )]
 public partial class BaseWeapon : BaseCarriable
 {
+	public virtual bool AutoFire => true;
 	public virtual float Rate => 5.0f;
 
 	public override void Spawn()
@@ -33,7 +34,10 @@ public partial class BaseWeapon : BaseCarriable
 
 	public virtual bool CanPrimaryAttack()
 	{
-		if ( !Owner.IsValid() || !Input.Down( InputButton.PrimaryAttack ) ) return false;
+		bool isFiring = AutoFire ? Input.Down( InputButton.PrimaryAttack )
+								 : Input.Pressed( InputButton.PrimaryAttack );
+
+		if ( !Owner.IsValid() || !isFiring ) return false;
 
 		var rate = Rate;
 		if ( rate <= 0 ) return true;

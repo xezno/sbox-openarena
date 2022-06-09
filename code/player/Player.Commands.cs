@@ -23,6 +23,7 @@ partial class Player
 
 		if ( pawn is Player player )
 		{
+			player.Inventory.Add( new Pistol() );
 			player.Inventory.Add( new SMG() );
 			player.Inventory.Add( new RocketLauncher() );
 			player.Inventory.Add( new LightningGun(), true );
