@@ -1,6 +1,6 @@
-﻿namespace Fortress;
+﻿namespace OpenArena;
 
-partial class FortressGame
+partial class ArenaGame
 {
 	public static void Explode( Vector3 position, float damage = 100, Entity owner = null )
 	{
@@ -15,7 +15,7 @@ partial class FortressGame
 			if ( overlap is not ModelEntity ent || !ent.IsValid() ) continue;
 			if ( ent.LifeState != LifeState.Alive || !ent.PhysicsBody.IsValid() || ent.IsWorld ) continue;
 
-			var dir = (overlap.Position - position).Normal;
+			var dir = ( overlap.Position - position ).Normal;
 			var dist = Vector3.DistanceBetween( position, overlap.Position );
 
 			if ( dist > radius ) continue;

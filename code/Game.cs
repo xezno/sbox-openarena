@@ -7,11 +7,11 @@ global using System.Linq;
 global using System.Threading.Tasks;
 global using System.Collections.Generic;
 
-namespace Fortress;
+namespace OpenArena;
 
-public partial class FortressGame : Sandbox.Game
+public partial class ArenaGame : Sandbox.Game
 {
-	public FortressGame()
+	public ArenaGame()
 	{
 	}
 

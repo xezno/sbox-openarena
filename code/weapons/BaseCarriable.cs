@@ -1,4 +1,4 @@
-﻿namespace Fortress;
+﻿namespace OpenArena;
 
 /// <summary>
 /// An entity that can be carried in the player's inventory and hands.
@@ -169,6 +169,6 @@ public class BaseCarriable : AnimatedEntity
 	/// <summary>
 	/// Utility - return the entity we should be spawning particles from etc
 	/// </summary>
-	public virtual ModelEntity EffectEntity => (ViewModelEntity.IsValid() && IsFirstPersonMode) ? ViewModelEntity : this;
+	public virtual ModelEntity EffectEntity => ( ViewModelEntity.IsValid() && IsFirstPersonMode ) ? ViewModelEntity : this;
 
 }

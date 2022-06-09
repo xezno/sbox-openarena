@@ -1,4 +1,4 @@
-﻿namespace Fortress;
+﻿namespace OpenArena;
 
 public class Rocket : ModelEntity
 {
@@ -28,7 +28,7 @@ public class Rocket : ModelEntity
 			if ( tr.Hit || LifeTime > MaxLifetime )
 			{
 				// Explode
-				FortressGame.Explode( tr.EndPosition, 10f, Owner );
+				ArenaGame.Explode( tr.EndPosition, 10f, Owner );
 				this.Delete();
 			}
 		}

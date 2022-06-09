@@ -2,14 +2,14 @@
   "Title": "OpenArena",
   "Type": "game",
   "Org": "local",
-  "Ident": "fortress",
+  "Ident": "openarena",
   "Schema": 1,
   "HasAssets": true,
   "AssetsPath": "",
   "ResourcePaths": null,
   "HasCode": true,
   "CodePath": "/code/",
-  "RootNamespace": "Fortress",
+  "RootNamespace": "OpenArena",
   "Metadata": {
     "MapList": [
       "facepunch.construct"
