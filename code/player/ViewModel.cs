@@ -2,10 +2,12 @@
 
 public class ViewModel : BaseViewModel
 {
-	private float Fov;
+	private const float DefaultFov = 70f;
+
+	private float Fov = DefaultFov;
 	private Vector3 Offset;
 
-	private float TargetFov;
+	private float TargetFov = DefaultFov;
 	private Vector3 TargetOffset;
 
 	private Rotation TargetRotation;
@@ -22,7 +24,7 @@ public class ViewModel : BaseViewModel
 		TargetRotation = Rotation.Lerp( TargetRotation, camSetup.Rotation, 33f * Time.Delta );
 		Rotation = Rotation.Lerp( camSetup.Rotation, TargetRotation, 0.1f );
 
-		TargetFov = 70f;
+		TargetFov = DefaultFov;
 
 		BuildWalkEffects( ref camSetup );
 		ApplyEffects( ref camSetup );
