@@ -423,8 +423,8 @@
 					m_vDomainMaxs = [ 0.0, 0.0 ]
 				}
 			}
-			m_flStartOffset = 400.0
-			m_flEndOffset = 400.0
+			m_flStartOffset = 384.0
+			m_flEndOffset = 384.0
 		},
 	]
 	m_Operators = 
@@ -444,7 +444,7 @@
 			m_bGammaCorrectVertexColors = false
 			m_bSaturateColorPreAlphaBlend = false
 			m_bAdditive = true
-			m_flMaxLength = 500.0
+			m_flMaxLength = 384.0
 			m_flSelfIllumAmount = 
 			{
 				m_nType = "PF_TYPE_LITERAL"
@@ -490,7 +490,7 @@
 					m_vDomainMaxs = [ 0.0, 0.0 ]
 				}
 			}
-			m_flMinLength = 400.0
+			m_flMinLength = 384.0
 			m_vecHeadColorScale = 
 			{
 				m_nType = "PVEC_TYPE_LITERAL_COLOR"
@@ -695,8 +695,8 @@
 		},
 		{
 			_class = "C_OP_RenderTrails"
-			m_flMaxLength = 500.0
-			m_flMinLength = 400.0
+			m_flMaxLength = 384.0
+			m_flMinLength = 384.0
 			m_vecHeadColorScale = 
 			{
 				m_nType = "PVEC_TYPE_LITERAL_COLOR"
