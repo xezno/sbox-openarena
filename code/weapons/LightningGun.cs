@@ -11,7 +11,6 @@ public class LightningGun : BaseWeapon
 	public override void Spawn()
 	{
 		base.Spawn();
-		SetModel( "weapons/rust_smg/rust_smg.vmdl" );
 	}
 
 	public override void Simulate( Client player )
@@ -34,30 +33,21 @@ public class LightningGun : BaseWeapon
 		}
 	}
 
-	public override void AttackPrimary()
+	public override void ShootBullet()
 	{
-		base.AttackPrimary();
-
 		if ( particles == null )
 		{
 			Entity effectEntity = IsLocalPawn ? ViewModelEntity : this;
 			particles = Particles.Create( "particles/physgun_beam.vpcf", effectEntity, "muzzle" );
 		}
 
-		bool InWater = Map.Physics.IsPointWater( Owner.EyePosition );
-		var tr = Trace.Ray( Owner.EyePosition, Owner.EyePosition + Owner.EyeRotation.Forward * 8192f )
-				.UseHitboxes()
-				.HitLayer( CollisionLayer.Water, !InWater )
-				.HitLayer( CollisionLayer.Debris )
-				.Ignore( Owner )
-				.Ignore( this )
-				.Size( 1.0f )
-				.Run();
+		var tr = TraceBullet();
 		particles.SetPosition( 1, tr.EndPosition );
 
 		if ( tr.Hit && timeSinceDamaged > 0.1f )
 		{
 			tr.Surface.DoBulletImpact( tr );
+
 			if ( tr.Entity.IsValid() && !tr.Entity.IsWorld )
 			{
 				tr.Entity.TakeDamage( DamageInfo

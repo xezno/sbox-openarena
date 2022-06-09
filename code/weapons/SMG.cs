@@ -4,40 +4,8 @@ public class SMG : BaseWeapon
 {
 	public override string ViewModelPath => "weapons/rust_smg/v_rust_smg.vmdl";
 	public override float Rate => 10;
-
-	public override void Spawn()
-	{
-		base.Spawn();
-		SetModel( "weapons/rust_smg/rust_smg.vmdl" );
-	}
-
-	public override void AttackPrimary()
-	{
-		base.AttackPrimary();
-
-		foreach ( var tr in TraceBullet( Owner.EyePosition, Owner.EyePosition + Owner.EyeRotation.Forward * 8192f ) )
-		{
-			Entity effectEntity =  IsLocalPawn  ? ViewModelEntity : this;
-
-			var tracerParticles = Particles.Create( "particles/tracer.vpcf", effectEntity, "muzzle" );
-			tracerParticles.SetPosition( 1, tr.EndPosition );
-
-			_ = Particles.Create( "particles/pistol_muzzleflash.vpcf", effectEntity, "muzzle" );
-			 ViewModelEntity ?.SetAnimParameter( "fire", true );
-			PlaySound( "rust_smg.shoot" );
-
-			if ( tr.Hit )
-			{
-				tr.Surface.DoBulletImpact( tr );
-				if ( tr.Entity.IsValid() && !tr.Entity.IsWorld )
-				{
-					tr.Entity.TakeDamage( DamageInfo
-						.FromBullet( tr.EndPosition, tr.Direction * 32, 10 )
-						.WithAttacker( Owner ) );
-				}
-			}
-		}
-	}
+	public override string WorldModel => "weapons/rust_smg/rust_smg.vmdl";
+	public override string FireSound => "rust_smg.shoot";
 
 	public override void RenderHud( Vector2 screenSize )
 	{

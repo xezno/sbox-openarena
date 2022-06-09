@@ -1,14 +1,22 @@
-﻿namespace OpenArena;
+﻿using Sandbox.UI.Tests;
+
+namespace OpenArena;
 
 [Title( "Base Weapon" ), Icon( "sports_martial_arts" )]
 public partial class BaseWeapon : BaseCarriable
 {
+	public virtual string WorldModel => "";
 	public virtual bool AutoFire => true;
 	public virtual float Rate => 5.0f;
+	public virtual string FireSound => "rust_pistol.shoot";
+	public virtual float Damage => 10f;
+	public virtual string MuzzleFlashParticles => "particles/pistol_muzzleflash.vpcf";
+	public virtual string TracerParticles => "particles/tracer.vpcf";
 
 	public override void Spawn()
 	{
 		base.Spawn();
+		SetModel( WorldModel );
 
 		CollisionGroup = CollisionGroup.Weapon; // so players touch it as a trigger but not as a solid
 		SetInteractsAs( CollisionLayer.Debris ); // so player movement doesn't walk into it
@@ -47,27 +55,67 @@ public partial class BaseWeapon : BaseCarriable
 
 	public virtual void AttackPrimary()
 	{
-
+		ShootBullet();
 	}
 
-	/// <summary>
-	/// Does a trace from start to end, does bullet impact effects. Coded as an IEnumerable so you can return multiple
-	/// hits, like if you're going through layers or ricocet'ing or something.
-	/// </summary>
-	public virtual IEnumerable<TraceResult> TraceBullet( Vector3 start, Vector3 end, float radius = 2.0f )
+	public virtual void ShootBullet()
 	{
-		bool InWater = Map.Physics.IsPointWater( start );
+		var tr = TraceBullet();
+
+		//
+		// Bullet damage etc.
+		//
+		if ( tr.Hit )
+		{
+			tr.Surface.DoBulletImpact( tr );
+			if ( tr.Entity.IsValid() && !tr.Entity.IsWorld )
+			{
+				tr.Entity.TakeDamage( DamageInfo
+					.FromBullet( tr.EndPosition, tr.Direction * 32, Damage )
+					.WithAttacker( Owner ) );
+			}
+		}
+
+		//
+		// Shoot effects
+		//
+		// using ( Prediction.Off() )
+		{
+			CreateShootEffects( tr );
+		}
+	}
+
+	protected virtual void CreateShootEffects( TraceResult tr )
+	{
+		Entity effectEntity = IsLocalPawn ? ViewModelEntity : this;
+
+		var tracerParticles = Particles.Create( TracerParticles, effectEntity, "muzzle" );
+		tracerParticles.SetPosition( 1, tr.EndPosition );
+
+		_ = Particles.Create( MuzzleFlashParticles, effectEntity, "muzzle" );
+
+		ViewModelEntity?.SetAnimParameter( "fire", true );
+		PlaySound( FireSound );
+	}
+
+	public virtual TraceResult TraceBullet()
+	{
+		var start = Owner.EyePosition;
+		var end = Owner.EyePosition + Owner.EyeRotation.Forward * 8192f;
+		float radius = 2.0f;
+
+		bool inWater = Map.Physics.IsPointWater( start );
 
 		var tr = Trace.Ray( start, end )
 				.UseHitboxes()
-				.HitLayer( CollisionLayer.Water, !InWater )
+				.HitLayer( CollisionLayer.Water, !inWater )
 				.HitLayer( CollisionLayer.Debris )
 				.Ignore( Owner )
 				.Ignore( this )
 				.Size( radius )
 				.Run();
 
-		yield return tr;
+		return tr;
 	}
 
 	public override Sound PlaySound( string soundName, string attachment )

@@ -1,6 +1,4 @@
-﻿using Sandbox;
-
-namespace OpenArena;
+﻿namespace OpenArena;
 
 [Library( "ft_rocket_launcher" )]
 public class RocketLauncher : BaseWeapon
@@ -8,12 +6,7 @@ public class RocketLauncher : BaseWeapon
 	private float Speed => 1000f;
 	public override float Rate => 1.0f;
 	public override string ViewModelPath => "weapons/rust_pistol/v_rust_pistol.vmdl";
-
-	public override void Spawn()
-	{
-		base.Spawn();
-		SetModel( "weapons/rust_pistol/rust_pistol.vmdl" );
-	}
+	public override string WorldModel => "weapons/rust_pistol/rust_pistol.vmdl";
 
 	public override bool CanPrimaryAttack()
 	{
@@ -27,8 +20,6 @@ public class RocketLauncher : BaseWeapon
 
 	public override void AttackPrimary()
 	{
-		base.AttackPrimary();
-
 		if ( IsServer )
 		{
 			var player = Owner;
@@ -42,7 +33,7 @@ public class RocketLauncher : BaseWeapon
 			rocket.Predictable = true;
 		}
 
-		 ViewModelEntity ?.SetAnimParameter( "fire", true );
+		ViewModelEntity?.SetAnimParameter( "fire", true );
 	}
 
 	public override void RenderHud( Vector2 screenSize )

@@ -3,42 +3,9 @@
 public class Pistol : BaseWeapon
 {
 	public override string ViewModelPath => "weapons/rust_pistol/v_rust_pistol.vmdl";
+	public override string WorldModel => "weapons/rust_pistol/rust_pistol.vmdl";
 	public override float Rate => 5;
 	public override bool AutoFire => false;
-
-	public override void Spawn()
-	{
-		base.Spawn();
-		SetModel( "weapons/rust_pistol/rust_pistol.vmdl" );
-	}
-
-	public override void AttackPrimary()
-	{
-		base.AttackPrimary();
-
-		foreach ( var tr in TraceBullet( Owner.EyePosition, Owner.EyePosition + Owner.EyeRotation.Forward * 8192f ) )
-		{
-			Entity effectEntity = IsLocalPawn ? ViewModelEntity : this;
-
-			var tracerParticles = Particles.Create( "particles/tracer.vpcf", effectEntity, "muzzle" );
-			tracerParticles.SetPosition( 1, tr.EndPosition );
-
-			_ = Particles.Create( "particles/pistol_muzzleflash.vpcf", effectEntity, "muzzle" );
-			ViewModelEntity?.SetAnimParameter( "fire", true );
-			PlaySound( "rust_pistol.shoot" );
-
-			if ( tr.Hit )
-			{
-				tr.Surface.DoBulletImpact( tr );
-				if ( tr.Entity.IsValid() && !tr.Entity.IsWorld )
-				{
-					tr.Entity.TakeDamage( DamageInfo
-						.FromBullet( tr.EndPosition, tr.Direction * 32, 10 )
-						.WithAttacker( Owner ) );
-				}
-			}
-		}
-	}
 
 	public override void RenderHud( Vector2 screenSize )
 	{
