@@ -93,13 +93,7 @@ public class BaseCarriable : AnimatedEntity
 	/// </summary>
 	public virtual void ActiveEnd( Entity ent, bool dropped )
 	{
-		//
-		// If we're just holstering, then hide us
-		//
-		if ( !dropped )
-		{
-			EnableDrawing = false;
-		}
+		EnableDrawing = false;
 
 		if ( IsClient )
 		{
