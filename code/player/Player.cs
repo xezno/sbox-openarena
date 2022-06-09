@@ -4,6 +4,16 @@ partial class Player
 {
 	[Net] private bool IsInvincible { get; set; }
 
+	private Announcer Announcer { get; set; }
+
+	public override void ClientSpawn()
+	{
+		base.ClientSpawn();
+
+		if ( IsLocalPawn )
+			Announcer = new();
+	}
+
 	public void Respawn()
 	{
 		SetModel( "models/citizen/citizen.vmdl" );
@@ -11,6 +21,7 @@ partial class Player
 		EnableDrawing = true;
 		EnableHideInFirstPerson = true;
 		EnableShadowInFirstPerson = true;
+		EnableAllCollisions = true;
 
 		Controller = new WalkController();
 		Animator = new StandardPlayerAnimator();
@@ -89,22 +100,25 @@ partial class Player
 
 	public override void TakeDamage( DamageInfo info )
 	{
-		if ( LifeState == LifeState.Dead )
-			return;
-
 		if ( IsInvincible && info.Attacker.IsValid() )
 			return;
 
 		base.TakeDamage( info );
-		this.ProceduralHitReaction( info );
 
-		// Add a score to the killer
-		if ( LifeState == LifeState.Dead && info.Attacker != null )
+		if ( LifeState == LifeState.Dead )
 		{
-			if ( info.Attacker.Client != null && info.Attacker != this )
+			RpcOnDeath( To.Single( this ) );
+
+			if ( info.Attacker != null && info.Attacker.Client != null && info.Attacker != this )
 			{
+				RpcOnKill( To.Single( info.Attacker ) );
+
 				info.Attacker.Client.AddInt( "kills" );
 			}
+		}
+		else
+		{
+			this.ProceduralHitReaction( info );
 		}
 
 		// Tell attacker that they did damage to us
@@ -112,6 +126,31 @@ partial class Player
 		{
 			RpcDamageDealt( To.Single( info.Attacker ), LifeState == LifeState.Dead, NetworkIdent );
 		}
+
+	}
+
+	[ClientRpc]
+	public void RpcOnKill()
+	{
+		Event.Run( ArenaEvent.Player.Kill.Name );
+	}
+
+	[ClientRpc]
+	public void RpcOnDeath()
+	{
+		Event.Run( ArenaEvent.Player.Death.Name );
+	}
+
+	[ClientRpc]
+	public void RpcDamageDealt( bool isKill, int victimNetworkId )
+	{
+		var victim = All.OfType<Player>().First( x => x.NetworkIdent == victimNetworkId );
+		Log.Trace( $"We did damage to {victim}" );
+
+		if ( isKill )
+			PlaySound( "kill" );
+
+		PlaySound( "hit" );
 	}
 
 	public void RenderHud( Vector2 screenSize )

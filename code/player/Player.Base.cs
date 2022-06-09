@@ -50,6 +50,7 @@ public partial class Player : AnimatedEntity
 
 		CameraMode = new SpectateRagdollCamera();
 		EnableDrawing = false;
+		EnableAllCollisions = false;
 		BecomeRagdollOnClient( To.Everyone );
 	}
 
@@ -126,8 +127,6 @@ public partial class Player : AnimatedEntity
 	{
 		if ( LastActiveChild != ActiveChild )
 		{
-			Log.Trace( $"{LastActiveChild} is not {ActiveChild}" );
-
 			if ( LastActiveChild is BaseCarriable previousBc )
 				previousBc?.ActiveEnd( Owner, previousBc.Owner != Owner );
 
@@ -152,17 +151,5 @@ public partial class Player : AnimatedEntity
 	public override void OnChildRemoved( Entity child )
 	{
 		Inventory?.OnChildRemoved( child );
-	}
-
-	[ClientRpc]
-	public void RpcDamageDealt( bool isKill, int victimNetworkId )
-	{
-		var victim = All.OfType<Player>().First( x => x.NetworkIdent == victimNetworkId );
-		Log.Trace( $"We did damage to {victim}" );
-
-		if ( isKill )
-			PlaySound( "kill" );
-
-		PlaySound( "hit" );
 	}
 }
