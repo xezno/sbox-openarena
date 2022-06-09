@@ -162,7 +162,7 @@ public partial class Player : AnimatedEntity
 
 		if ( isKill )
 			PlaySound( "kill" );
-		else
-			PlaySound( "hit" );
+
+		PlaySound( "hit" );
 	}
 }
