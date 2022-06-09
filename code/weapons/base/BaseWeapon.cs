@@ -4,8 +4,9 @@
 public partial class BaseWeapon : BaseCarriable
 {
 	protected WeaponDataAsset WeaponData { get; private set; }
+	protected TimeSince TimeSinceDeployed { get; private set; }
 
-	public int Ammo { get; set; } = 100;
+	[Net, Predicted] public AmmoContainer Ammo { get; private set; }
 
 	public override void Spawn()
 	{
@@ -16,6 +17,8 @@ public partial class BaseWeapon : BaseCarriable
 
 		CollisionGroup = CollisionGroup.Weapon; // so players touch it as a trigger but not as a solid
 		SetInteractsAs( CollisionLayer.Debris ); // so player movement doesn't walk into it
+
+		Ammo = new();
 	}
 
 	public override void ClientSpawn()
@@ -49,6 +52,14 @@ public partial class BaseWeapon : BaseCarriable
 		ViewModelEntity.SetModel( WeaponData.ViewModel );
 	}
 
+	public override void ActiveStart( Entity ent )
+	{
+		base.ActiveStart( ent );
+
+		( ViewModelEntity as AnimatedEntity )?.SetAnimParameter( "deploy", true );
+		TimeSinceDeployed = 0;
+	}
+
 	[Net, Predicted]
 	public TimeSince TimeSinceAttack { get; set; }
 
@@ -72,6 +83,7 @@ public partial class BaseWeapon : BaseCarriable
 		bool isFiring = WeaponData.AutoFire ? Input.Down( InputButton.PrimaryAttack )
 											: Input.Pressed( InputButton.PrimaryAttack );
 
+		if ( TimeSinceDeployed < WeaponData.DeployTime ) return false;
 		if ( !Owner.IsValid() || !isFiring ) return false;
 
 		var rate = WeaponData.Rate;
@@ -82,6 +94,12 @@ public partial class BaseWeapon : BaseCarriable
 
 	public virtual void AttackPrimary()
 	{
+		//
+		// Try to take ammo
+		//
+		if ( !Ammo.Take() )
+			return;
+
 		ShootBullet();
 	}
 
@@ -116,8 +134,11 @@ public partial class BaseWeapon : BaseCarriable
 	{
 		Entity effectEntity = IsLocalPawn ? ViewModelEntity : this;
 
+		var start = ( effectEntity as ModelEntity ).GetAttachment( "muzzle" ) ?? default;
 		var tracerParticles = Particles.Create( WeaponData.TracerParticles, effectEntity, "muzzle" );
 		tracerParticles.SetPosition( 1, tr.EndPosition );
+
+		DebugOverlay.Line( start.Position, tr.EndPosition, 5f );
 
 		_ = Particles.Create( WeaponData.MuzzleFlashParticles, effectEntity, "muzzle" );
 

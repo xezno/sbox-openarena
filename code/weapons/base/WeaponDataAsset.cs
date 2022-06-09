@@ -42,6 +42,11 @@ public class WeaponDataAsset : GameResource
 	/// </summary>
 	public WeaponSlot Slot { get; set; } = WeaponSlot.Melee;
 
+	/// <summary>
+	/// How long does this weapon take to deploy before it can be used?
+	/// </summary>
+	public float DeployTime { get; internal set; } = 1.0f;
+
 	[ResourceType( "model" )]
 	public string WorldModel { get; set; } = "";
 

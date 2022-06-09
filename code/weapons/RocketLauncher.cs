@@ -5,7 +5,7 @@ public class RocketLauncher : BaseWeapon
 {
 	private float Speed => 1000f;
 
-	public override void AttackPrimary()
+	public override void ShootBullet()
 	{
 		if ( IsServer )
 		{

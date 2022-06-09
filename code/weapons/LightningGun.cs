@@ -16,6 +16,7 @@ public class LightningGun : BaseWeapon
 		bool isFiring = WeaponData.AutoFire ? Input.Down( InputButton.PrimaryAttack )
 											: Input.Pressed( InputButton.PrimaryAttack );
 
+		if ( TimeSinceDeployed < WeaponData.DeployTime ) return false;
 		if ( !Owner.IsValid() || !isFiring ) return false;
 		return true;
 	}
@@ -25,7 +26,7 @@ public class LightningGun : BaseWeapon
 		if ( !Owner.IsValid() )
 			return;
 
-		if ( CanPrimaryAttack() )
+		if ( CanPrimaryAttack() && Ammo.Count > 0 )
 		{
 			using ( LagCompensation() )
 			{
@@ -38,6 +39,11 @@ public class LightningGun : BaseWeapon
 			particles?.Destroy( true );
 			particles = null;
 		}
+	}
+
+	public override void AttackPrimary()
+	{
+		ShootBullet();
 	}
 
 	public override void ShootBullet()
@@ -53,6 +59,11 @@ public class LightningGun : BaseWeapon
 
 		if ( tr.Hit && timeSinceDamaged > ( 1 / WeaponData.Rate ) )
 		{
+			timeSinceDamaged = 0;
+
+			if ( !Ammo.Take() )
+				return;
+
 			tr.Surface.DoBulletImpact( tr );
 
 			if ( tr.Entity.IsValid() && !tr.Entity.IsWorld )
@@ -61,8 +72,6 @@ public class LightningGun : BaseWeapon
 					.FromBullet( tr.EndPosition, tr.Direction * 32, WeaponData.Damage )
 					.WithAttacker( Owner ) );
 			}
-
-			timeSinceDamaged = 0;
 		}
 	}
 
