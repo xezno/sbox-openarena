@@ -184,9 +184,6 @@
 			}
 			m_nSetMethod = "PARTICLE_SET_SCALE_CURRENT_VALUE"
 		},
-		{
-			_class = "C_OP_FadeAndKill"
-		},
 	]
 	m_Renderers = 
 	[
