@@ -5,9 +5,9 @@
 		LibraryName = "oa_weapon_railgun"
 		Name = "Railgun"
 		Description = "My Cool Weapon"
-		Damage = 100
+		Damage = 75
 		AutoFire = false
-		Rate = 5
+		Rate = 1
 		Slot = 5
 		WorldModel = resource:"weapons/rust_shotgun/rust_shotgun.vmdl"
 		ViewModel = resource:"weapons/rust_shotgun/v_rust_shotgun.vmdl"

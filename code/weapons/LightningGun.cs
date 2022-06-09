@@ -20,7 +20,6 @@ public class LightningGun : BaseWeapon
 		return true;
 	}
 
-
 	public override void Simulate( Client player )
 	{
 		if ( !Owner.IsValid() )
