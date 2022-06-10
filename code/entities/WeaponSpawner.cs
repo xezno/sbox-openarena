@@ -2,7 +2,7 @@
 
 [Title( "Weapon Spawner" ), Icon( "add" ), Category( "World" )]
 [EditorModel( "models/world/weapon_spawn.vmdl" )]
-[Library( "ft_weapon_spawner" )]
+[Library( "oa_weapon_spawner" )]
 [HammerEntity]
 public class WeaponSpawner : ModelEntity
 {
