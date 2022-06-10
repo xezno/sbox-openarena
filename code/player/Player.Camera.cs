@@ -54,7 +54,6 @@ partial class Player
 			WalkBob += Time.Delta * 20.0f * t;
 
 		var offset = Bobbing.CalculateOffset( WalkBob, t, 2.0f ) * setup.Rotation;
-		DebugOverlay.ScreenText( offset.ToString(), new Vector3( 60, 550 ) );
 		setup.Position += offset;
 	}
 }
