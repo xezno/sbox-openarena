@@ -1,5 +1,13 @@
 ﻿@import "/ui/_Theme.scss";
 
+rootpanel {
+    transition: opacity 150ms ease;
+
+    &.devcamera {
+        opacity: 0;
+    }
+}
+
 text, label {
     font-family: $font;
 }
