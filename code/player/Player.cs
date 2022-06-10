@@ -23,7 +23,7 @@ partial class Player
 		EnableShadowInFirstPerson = true;
 		EnableAllCollisions = true;
 
-		Controller = new WalkController();
+		Controller = new QuakeWalkController();
 		Animator = new StandardPlayerAnimator();
 		CameraMode = new FirstPersonCamera();
 
