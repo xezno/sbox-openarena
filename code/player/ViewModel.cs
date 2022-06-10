@@ -51,21 +51,15 @@ public class ViewModel : BaseViewModel
 	{
 		if ( Owner is Player player )
 		{
-			float factor = 2.0f;
-
 			var speed = player.Velocity.Length;
 			float t = speed.LerpInverse( 0, 310 );
-
-			TargetOffset = new Vector3( t, 0, t / 2f ) * factor;
-
-			var left = camSetup.Rotation.Left;
-			var up = camSetup.Rotation.Up;
 
 			if ( Owner.GroundEntity != null )
 				WalkBob += Time.Delta * 20.0f * t;
 
-			TargetOffset += up * MathF.Sin( WalkBob ) * t * -0.5f * factor;
-			TargetOffset += left * MathF.Sin( WalkBob * 0.5f ) * t * -0.25f * factor;
+			float factor = 2.0f;
+			TargetOffset = Bobbing.CalculateOffset( WalkBob, t, factor ) * camSetup.Rotation;
+			TargetOffset += new Vector3( t, 0, t / 2f ) * factor;
 		}
 	}
 }

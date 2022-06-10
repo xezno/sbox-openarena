@@ -4,6 +4,7 @@ partial class Player
 {
 	private float TargetFov { get; set; }
 	private float Fov { get; set; }
+	private float WalkBob;
 
 	private float ZoomSpeed => 25.0f;
 
@@ -42,5 +43,18 @@ partial class Player
 		{
 			ActiveChild.PostCameraSetup( ref setup );
 		}
+
+		//
+		// View bobbing
+		//
+		var speed = Velocity.Length;
+		float t = speed.LerpInverse( 0, 310 );
+
+		if ( GroundEntity != null )
+			WalkBob += Time.Delta * 20.0f * t;
+
+		var offset = Bobbing.CalculateOffset( WalkBob, t, 2.0f ) * setup.Rotation;
+		DebugOverlay.ScreenText( offset.ToString(), new Vector3( 60, 550 ) );
+		setup.Position += offset;
 	}
 }
