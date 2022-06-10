@@ -9,6 +9,8 @@
 		AutoFire = false
 		Rate = 5
 		Slot = 7
+		DeployTime = 1
+		CrosshairLibraryName = "oa_crosshair_circle"
 		WorldModel = resource:"weapons/rust_smg/rust_smg.vmdl"
 		ViewModel = resource:"weapons/rust_smg/v_rust_smg.vmdl"
 		FireSound = resource:"weapons/rust_pistol/sound/rust_pistol.shoot.sound"

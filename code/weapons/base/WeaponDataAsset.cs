@@ -47,6 +47,11 @@ public class WeaponDataAsset : GameResource
 	/// </summary>
 	public float DeployTime { get; internal set; } = 1.0f;
 
+	/// <summary>
+	/// Which crosshair should we use? (prefixed with oa_crosshair_)
+	/// </summary>
+	public string CrosshairLibraryName { get; set; } = "oa_crosshair_cross";
+
 	[ResourceType( "model" )]
 	public string WorldModel { get; set; } = "";
 

@@ -19,23 +19,4 @@ public class Railgun : BaseWeapon
 		ViewModelEntity?.SetAnimParameter( "fire", true );
 		PlaySound( WeaponData.FireSound );
 	}
-
-	public override void RenderHud( Vector2 screenSize )
-	{
-		var draw = Render.Draw2D;
-		var center = screenSize / 2.0f;
-
-		//
-		// Properties
-		//
-		draw.Color = Color.White;
-
-		float t = TimeSinceAttack.Relative.LerpInverse( 0, 0.5f );
-		t = Easing.EaseOut( t );
-
-		draw.Color = draw.Color.WithAlpha( t );
-
-		// Dot
-		draw.Circle( center, 1f );
-	}
 }

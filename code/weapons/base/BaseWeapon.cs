@@ -8,6 +8,8 @@ public partial class BaseWeapon : BaseCarriable
 
 	[Net, Predicted] public AmmoContainer Ammo { get; private set; }
 
+	protected ICrosshair Crosshair { get; set; }
+
 	public override void Spawn()
 	{
 		base.Spawn();
@@ -25,6 +27,14 @@ public partial class BaseWeapon : BaseCarriable
 	{
 		base.ClientSpawn();
 		LoadWeaponData();
+	}
+
+	public override void CreateHudElements()
+	{
+		base.CreateHudElements();
+
+		Crosshair = TypeLibrary.Create<ICrosshair>( WeaponData.CrosshairLibraryName );
+		Log.Trace( $"Crosshair: {WeaponData.CrosshairLibraryName}, IsClient: {IsClient}" );
 	}
 
 	private void LoadWeaponData()
@@ -177,6 +187,6 @@ public partial class BaseWeapon : BaseCarriable
 
 	public virtual void RenderHud( Vector2 screenSize )
 	{
-
+		Crosshair?.RenderHud( TimeSinceAttack, screenSize );
 	}
 }
