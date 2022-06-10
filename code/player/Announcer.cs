@@ -70,6 +70,9 @@ public class Announcer : Entity
 
 		TimeSinceLastKill = 0;
 
+		if ( damageInfo.IsHeadshot() )
+			QueueAnnouncerSound( "headshot" );
+
 		string fastKillSound = FastKillStreak switch
 		{
 			// Kills => Sound name
@@ -94,9 +97,6 @@ public class Announcer : Entity
 		};
 
 		QueueAnnouncerSound( killStreakSound );
-
-		if ( damageInfo.IsHeadshot() )
-			QueueAnnouncerSound( "headshot" );
 	}
 
 	[ArenaEvent.Player.Death]
