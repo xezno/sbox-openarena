@@ -3,9 +3,9 @@
 [Library]
 public partial class WalkController : BasePlayerController
 {
-	public float DefaultSpeed => 310.0f;
+	public float DefaultSpeed => 320.0f;
 	public float Acceleration => 10.0f;
-	public float AirAcceleration => 100.0f;
+	public float AirAcceleration => 128.0f;
 	public float FallSoundZ => 30.0f;
 	public float GroundFriction => 6.0f;
 	public float StopSpeed => 100.0f;
@@ -19,14 +19,22 @@ public partial class WalkController : BasePlayerController
 	public float BodyGirth => 32.0f;
 	public float BodyHeight => 72.0f;
 	public float EyeHeight => 64.0f;
-	public float Gravity => 900.0f;
-	public float AirControl => 30.0f;
+	public float Gravity => 800.0f;
+	public float AirControl => 50.0f;
 	public bool AutoJump => true;
 
 	public bool Swimming { get; set; } = false;
 
 	public Duck Duck;
 	public Unstuck Unstuck;
+
+	private Vector3 Impulse;
+	private Vector3 ImpulseStart;
+
+	public void ApplyImpulse( Vector3 impulse )
+	{
+		Impulse += impulse;
+	}
 
 	public WalkController()
 	{
@@ -92,6 +100,18 @@ public partial class WalkController : BasePlayerController
 	{
 		EyeLocalPosition = Vector3.Up * ( EyeHeight * Pawn.Scale );
 		UpdateBBox();
+
+		if ( Impulse.Length > 0 )
+		{
+			ClearGroundEntity();
+
+			Velocity += Impulse;
+			Impulse = Vector3.Zero;
+
+			ImpulseStart = Position;
+		}
+
+		DebugOverlay.ScreenText( $"{( Position - ImpulseStart ).Length} units travelled since impulse applied", new Vector2( 360, 150 ) );
 
 		EyeLocalPosition += TraceOffset;
 		EyeRotation = Input.Rotation;
@@ -562,7 +582,7 @@ public partial class WalkController : BasePlayerController
 		var velocity = WishVelocity;
 		float normalDot = velocity.Dot( LadderNormal );
 		var cross = LadderNormal * normalDot;
-		Velocity =  velocity - cross  + ( -normalDot * LadderNormal.Cross( Vector3.Up.Cross( LadderNormal ).Normal ) );
+		Velocity = velocity - cross + ( -normalDot * LadderNormal.Cross( Vector3.Up.Cross( LadderNormal ).Normal ) );
 
 		Move();
 	}
