@@ -51,6 +51,7 @@ public class LightningGun : BaseWeapon
 
 		var tr = TraceBullet();
 		particles.SetPosition( 1, tr.EndPosition );
+		DoScorchMarks( tr );
 
 		if ( tr.Hit && timeSinceDamaged > ( 1 / WeaponData.Rate ) )
 		{
@@ -59,14 +60,31 @@ public class LightningGun : BaseWeapon
 			if ( !Ammo.Take() )
 				return;
 
-			tr.Surface.DoBulletImpact( tr );
-
 			if ( tr.Entity.IsValid() && !tr.Entity.IsWorld )
 			{
 				tr.Entity.TakeDamage( DamageInfo
 					.FromBullet( tr.EndPosition, tr.Direction * 32, WeaponData.Damage )
 					.WithAttacker( Owner ) );
 			}
+		}
+	}
+
+	private void DoScorchMarks( TraceResult tr )
+	{
+		//
+		// No effects on resimulate
+		//
+		if ( !Prediction.FirstTime )
+			return;
+
+		//
+		// Drop a decal
+		//
+		var decalPath = "data/decals/scorch.decal";
+
+		if ( ResourceLibrary.TryGet<DecalDefinition>( decalPath, out var decal ) )
+		{
+			DecalSystem.PlaceUsingTrace( decal, tr );
 		}
 	}
 }
