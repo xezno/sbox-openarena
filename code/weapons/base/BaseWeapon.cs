@@ -134,7 +134,7 @@ public partial class BaseWeapon : BaseCarriable
 		//
 		// using ( Prediction.Off() )
 		{
-			CreateShootEffects( tr );
+			CreateShootEffects( tr.Direction, tr.EndPosition );
 		}
 	}
 
@@ -142,16 +142,16 @@ public partial class BaseWeapon : BaseCarriable
 	{
 		return DamageInfo
 			.FromBullet( tr.EndPosition, tr.Direction * 32, WeaponData.Damage )
-			.WithAttacker( Owner );
+			.WithAttacker( Owner )
+			.WithBone( tr.Bone );
 	}
 
-	protected virtual void CreateShootEffects( TraceResult tr )
+	protected virtual void CreateShootEffects( Vector3 direction, Vector3 endPosition )
 	{
 		Entity effectEntity = IsLocalPawn ? ViewModelEntity : this;
 
 		var start = ( effectEntity as ModelEntity ).GetAttachment( "muzzle" ) ?? default;
-		var startPosition = start.Position + ( tr.Direction * 300 );
-		var endPosition = tr.EndPosition;
+		var startPosition = start.Position + ( direction * 300 );
 
 		var tracerParticles = Particles.Create( WeaponData.TracerParticles, startPosition );
 		tracerParticles.SetPosition( 1, endPosition );
@@ -164,8 +164,9 @@ public partial class BaseWeapon : BaseCarriable
 
 	public virtual TraceResult TraceBullet()
 	{
-		var start = Owner.EyePosition;
-		var end = Owner.EyePosition + Owner.EyeRotation.Forward * 8192f;
+		Vector3 start = Owner.EyePosition;
+		Vector3 end = Owner.EyePosition + Owner.EyeRotation.Forward * 8192f;
+
 		float radius = 2.0f;
 
 		bool inWater = Map.Physics.IsPointWater( start );

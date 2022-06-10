@@ -7,6 +7,7 @@ public partial class Player : AnimatedEntity
 	[Net, Predicted] public PawnAnimator Animator { get; set; }
 	[Net, Predicted] public Entity ActiveChild { get; set; }
 	public Entity LastActiveChild { get; set; }
+	public DamageInfo LastDamageInfo { get; set; }
 
 	public Inventory Inventory { get; protected set; }
 

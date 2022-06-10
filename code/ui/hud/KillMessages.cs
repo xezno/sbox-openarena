@@ -19,9 +19,8 @@ public class KillMessages : Panel
 	}
 
 	[ArenaEvent.Player.Kill]
-	public void OnKill( Player victim )
+	public void OnKill( Player victim, DamageInfo damageInfo )
 	{
-		Log.Trace( $"KM: killed player {victim.Client.Name}" );
 		var message = new Message( victim.Client.Name );
 		message.Parent = this;
 	}

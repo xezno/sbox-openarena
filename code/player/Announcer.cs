@@ -14,10 +14,16 @@ public class Announcer : Entity
 
 	private void QueueAnnouncerSound( string soundId )
 	{
+		var soundName = $"{soundId}";
+
+		// No empty sound names
 		if ( string.IsNullOrEmpty( soundId ) )
 			return;
 
-		var soundName = $"{soundId}";
+		// No duplicates
+		if ( SoundQueue.Contains( soundName ) )
+			return;
+
 		Log.Trace( $"Queueing announcer sound {soundName}" );
 		SoundQueue.Enqueue( soundName );
 	}
@@ -57,7 +63,7 @@ public class Announcer : Entity
 	}
 
 	[ArenaEvent.Player.Kill]
-	public void OnKill( Player victim )
+	public void OnKill( Player victim, DamageInfo damageInfo )
 	{
 		CurrentKillStreak++;
 		FastKillStreak++;
@@ -88,10 +94,13 @@ public class Announcer : Entity
 		};
 
 		QueueAnnouncerSound( killStreakSound );
+
+		if ( damageInfo.IsHeadshot() )
+			QueueAnnouncerSound( "headshot" );
 	}
 
 	[ArenaEvent.Player.Death]
-	public void OnDeath( Player attacker )
+	public void OnDeath( Player attacker, DamageInfo damageInfo )
 	{
 		CurrentKillStreak = 0;
 	}

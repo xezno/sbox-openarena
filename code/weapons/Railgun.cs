@@ -3,7 +3,7 @@
 [Library( "oa_weapon_railgun" )]
 public class Railgun : BaseWeapon
 {
-	protected override void CreateShootEffects( TraceResult tr )
+	protected override void CreateShootEffects( Vector3 direction, Vector3 endPosition )
 	{
 		Entity effectEntity = IsLocalPawn ? ViewModelEntity : this;
 
@@ -11,8 +11,8 @@ public class Railgun : BaseWeapon
 		var startPosition = muzzleTransform.Position;
 
 		var tracerParticles = Particles.Create( WeaponData.TracerParticles, startPosition );
-		tracerParticles.SetForward( 0, tr.Direction );
-		tracerParticles.SetPosition( 1, tr.EndPosition );
+		tracerParticles.SetForward( 0, direction );
+		tracerParticles.SetPosition( 1, endPosition );
 
 		_ = Particles.Create( WeaponData.MuzzleFlashParticles, effectEntity, "muzzle" );
 
@@ -25,7 +25,8 @@ public class Railgun : BaseWeapon
 		var damageInfo = base.CreateDamageInfo( tr );
 
 		Log.Trace( tr.Bone );
-		if ( tr.Bone == 5 ) // Head bone index: 5
+
+		if ( tr.IsHeadshot() )
 			damageInfo.Damage *= 2.0f;
 
 		return damageInfo;

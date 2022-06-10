@@ -108,6 +108,8 @@ partial class Player
 
 	public override void TakeDamage( DamageInfo info )
 	{
+		LastDamageInfo = info;
+
 		if ( IsInvincible && info.Attacker.IsValid() )
 			return;
 
@@ -141,14 +143,14 @@ partial class Player
 	public void RpcOnKill( int victimIdent )
 	{
 		var victim = Entity.All.OfType<Player>().FirstOrDefault( x => x.NetworkIdent == victimIdent );
-		Event.Run( ArenaEvent.Player.Kill.Name, victim );
+		Event.Run( ArenaEvent.Player.Kill.Name, victim, LastDamageInfo );
 	}
 
 	[ClientRpc]
 	public void RpcOnDeath( int attackerIdent )
 	{
 		var attacker = Entity.All.OfType<Player>().FirstOrDefault( x => x.NetworkIdent == attackerIdent );
-		Event.Run( ArenaEvent.Player.Death.Name, attacker );
+		Event.Run( ArenaEvent.Player.Death.Name, attacker, LastDamageInfo );
 	}
 
 	[ClientRpc]
