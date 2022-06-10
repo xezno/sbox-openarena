@@ -125,9 +125,7 @@ public partial class BaseWeapon : BaseCarriable
 			tr.Surface.DoBulletImpact( tr );
 			if ( tr.Entity.IsValid() && !tr.Entity.IsWorld )
 			{
-				tr.Entity.TakeDamage( DamageInfo
-					.FromBullet( tr.EndPosition, tr.Direction * 32, WeaponData.Damage )
-					.WithAttacker( Owner ) );
+				tr.Entity.TakeDamage( CreateDamageInfo( tr ) );
 			}
 		}
 
@@ -138,6 +136,13 @@ public partial class BaseWeapon : BaseCarriable
 		{
 			CreateShootEffects( tr );
 		}
+	}
+
+	protected virtual DamageInfo CreateDamageInfo( TraceResult tr )
+	{
+		return DamageInfo
+			.FromBullet( tr.EndPosition, tr.Direction * 32, WeaponData.Damage )
+			.WithAttacker( Owner );
 	}
 
 	protected virtual void CreateShootEffects( TraceResult tr )

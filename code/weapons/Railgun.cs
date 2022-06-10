@@ -19,4 +19,15 @@ public class Railgun : BaseWeapon
 		ViewModelEntity?.SetAnimParameter( "fire", true );
 		PlaySound( WeaponData.FireSound );
 	}
+
+	protected override DamageInfo CreateDamageInfo( TraceResult tr )
+	{
+		var damageInfo = base.CreateDamageInfo( tr );
+
+		Log.Trace( tr.Bone );
+		if ( tr.Bone == 5 ) // Head bone index: 5
+			damageInfo.Damage *= 2.0f;
+
+		return damageInfo;
+	}
 }
