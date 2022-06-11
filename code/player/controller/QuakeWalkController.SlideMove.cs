@@ -64,6 +64,7 @@ partial class QuakeWalkController
 			}
 			LogToScreen( $"MovePlanes: {Velocity} -> {vel}" );
 			endVelocity = vel;
+			Velocity = endVelocity;
 		}
 
 		if ( gravity )
@@ -126,12 +127,5 @@ partial class QuakeWalkController
 		{
 			Velocity = ClipVelocity( Velocity, trace.Normal, Overclip );
 		}
-
-		// try slidemove from this position
-		Position = trace.EndPosition;
-		Velocity = start_v;
-
-		SlideMove( gravity );
-		Velocity = ClipVelocity( Velocity, trace.Normal, Overclip );
 	}
 }
