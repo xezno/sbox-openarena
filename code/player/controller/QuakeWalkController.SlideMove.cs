@@ -76,8 +76,8 @@ partial class QuakeWalkController
 	}
 	private void StepSlideMove( bool gravity )
 	{
-		Vector3 start_o = Position;
-		Vector3 start_v = Velocity;
+		var startPos = Position;
+		var startVel = Velocity;
 
 		if ( !SlideMove( gravity ) )
 		{
@@ -85,21 +85,21 @@ partial class QuakeWalkController
 			return; // We got exactly where we wanted to go first try
 		}
 
-		Vector3 down = start_o;
+		Vector3 down = startPos;
 		down.z -= StepSize;
 
-		var trace = TraceBBox( start_o, down );
+		var trace = TraceBBox( startPos, down );
 		Vector3 up = new Vector3( 0, 0, 1 );
 
 		// never step up when you still have up velocity
 		if ( Velocity.z > 0 && ( trace.Fraction == 1.0f || trace.Normal.Dot( up ) < 0.7f ) )
 			return;
 
-		up = start_o;
+		up = startPos;
 		up.z += StepSize;
 
 		// test the player position if they were a stepheight higher
-		trace = TraceBBox( start_o, up );
+		trace = TraceBBox( startPos, up );
 
 		if ( trace.StartedSolid )
 		{
@@ -108,11 +108,12 @@ partial class QuakeWalkController
 			return;
 		}
 
-		float stepSize = trace.EndPosition.z - start_o.z;
+		float stepSize = trace.EndPosition.z - startPos.z;
 		Position = trace.EndPosition;
-		Velocity = start_v;
+		Velocity = startVel;
 
 		SlideMove( gravity );
+
 		// push down the final amount
 		down = Position;
 		down.z -= stepSize;

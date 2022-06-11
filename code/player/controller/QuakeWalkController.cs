@@ -436,7 +436,7 @@ public partial class QuakeWalkController : BasePlayerController
 		}
 
 		// slopes that are too steep will not be considered onground
-		if ( trace.Entity != null && trace.Normal.z < MinWalkNormal )
+		if ( trace.Entity != null && Vector3.GetAngle( Vector3.Up, trace.Normal ) > MaxWalkAngle )
 		{
 			LogToScreen( $"Too steep" );
 			SetGroundEntity( null );
@@ -451,7 +451,7 @@ public partial class QuakeWalkController : BasePlayerController
 		// if the player hull point one unit down is solid, the player is on ground
 		// see if standing on something solid
 		var point = Position + Vector3.Down * 1;
-		var bump_o = Position;
+		var bumpPos = Position;
 
 		bool moveToEndPos = false;
 
@@ -461,7 +461,7 @@ public partial class QuakeWalkController : BasePlayerController
 			point.z -= StepSize;
 		}
 
-		var trace = TraceBBox( bump_o, point );
+		var trace = TraceBBox( bumpPos, point );
 
 		if ( trace.Entity == null || Vector3.GetAngle( Vector3.Up, trace.Normal ) > MaxWalkAngle )
 		{

@@ -18,9 +18,6 @@ partial class QuakeWalkController
 	float Speed => 320.0f;
 	float AirSpeed => 180.0f;
 	float Gravity => 800f;
-
-	// Can't walk on very steep slopes
-	float MinWalkNormal => 0.7f;
 	float MaxWalkAngle => 45f;
 	float StepSize => 18;
 	float JumpVelocity => 270;
