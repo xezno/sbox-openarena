@@ -217,26 +217,9 @@ public class QuakeWalkController : BasePlayerController
 
 	public void AirMove()
 	{
-		Log( "AirMove" );
-		Vector3 wishVel;
-
 		Friction();
 
-		float fMove = Input.Forward;
-		float sMove = -Input.Left;
-
-		Vector3 forward = EyeRotation.Forward.WithZ( 0 );
-		Vector3 right = EyeRotation.Right.WithZ( 0 );
-
-		forward = ClipVelocity( forward, GroundTrace.Normal, OVERCLIP );
-		right = ClipVelocity( right, GroundTrace.Normal, OVERCLIP );
-
-		forward = forward.Normal;
-		right = right.Normal;
-
-		wishVel = forward * fMove + right * sMove;
-		wishVel.z = 0;
-
+		Vector3 wishVel = GetWishVelocity();
 		Vector3 wishDir = wishVel.Normal;
 		float wishSpeed = wishDir.Length;
 		wishSpeed *= pm_airspeed;
@@ -251,6 +234,26 @@ public class QuakeWalkController : BasePlayerController
 		StepSlideMove( true );
 	}
 
+	private Vector3 GetWishVelocity()
+	{
+		float fMove = Input.Forward;
+		float sMove = Input.Left;
+
+		Vector3 forward = EyeRotation.Forward.WithZ( 0 );
+		Vector3 left = EyeRotation.Left.WithZ( 0 );
+
+		forward = ClipVelocity( forward, GroundTrace.Normal, OVERCLIP );
+		left = ClipVelocity( left, GroundTrace.Normal, OVERCLIP );
+
+		forward = forward.Normal;
+		left = left.Normal;
+
+		Vector3 wishVel = fMove * forward + sMove * left;
+		wishVel.z = 0;
+
+		return wishVel;
+	}
+
 	private void WalkMove()
 	{
 		if ( CheckJump() )
@@ -260,24 +263,9 @@ public class QuakeWalkController : BasePlayerController
 			return;
 		}
 
-		Log( "WalkMove" );
-
 		Friction();
 
-		float fMove = Input.Forward;
-		float sMove = -Input.Left;
-
-		Vector3 forward = EyeRotation.Forward.WithZ( 0 );
-		Vector3 right = EyeRotation.Right.WithZ( 0 );
-
-		forward = ClipVelocity( forward, GroundTrace.Normal, OVERCLIP );
-		right = ClipVelocity( right, GroundTrace.Normal, OVERCLIP );
-
-		forward = forward.Normal;
-		right = right.Normal;
-
-		Vector3 wishVel = fMove * forward + sMove * right;
-
+		Vector3 wishVel = GetWishVelocity();
 		Vector3 wishDir = wishVel.Normal;
 		float wishSpeed = wishDir.Length;
 		wishSpeed *= pm_speed;
