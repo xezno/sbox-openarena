@@ -115,8 +115,16 @@ public class QuakeWalkController : BasePlayerController
 			AirMove();
 		}
 
+		// stick to ground
+		CategorizePosition( GroundEntity != null );
+
 		// set groundentity
 		GroundTrace();
+
+		// check if we're stuck and fix that
+		Unstuck();
+
+		// stay on ground
 
 		// if ( Debug )
 		{
@@ -143,12 +151,7 @@ public class QuakeWalkController : BasePlayerController
 			backoff /= overbounce;
 		}
 
-		for ( int i = 0; i < 3; i++ )
-		{
-			float change = normal[i] * backoff;
-			outVec[i] = inVec[i] - change;
-		}
-
+		outVec = inVec - ( normal * backoff );
 		return outVec;
 	}
 
@@ -325,9 +328,6 @@ public class QuakeWalkController : BasePlayerController
 	public bool SlideMove( bool gravity )
 	{
 		int bumpCount = 0;
-		int numplanes = 0;
-		int numbumps = 4;
-		Vector3[] planes = new Vector3[6];
 		Vector3 primalVelocity = Velocity;
 		Vector3 endVelocity = new();
 
@@ -346,150 +346,51 @@ public class QuakeWalkController : BasePlayerController
 		}
 
 		float timeLeft = Time.Delta;
+		float travelFraction = 0;
+		bool HitWall = false;
 
-		// Never turn against the ground plane
-		if ( pml.groundPlane )
+		using var moveplanes = new VelocityClipPlanes( Velocity );
+
+		for ( bumpCount = 0; bumpCount < moveplanes.Max; bumpCount++ )
 		{
-			numplanes = 1;
-			planes[0] = pml.groundTrace.Normal;
-		}
-		else
-		{
-			numplanes = 0;
-		}
+			if ( Velocity.Length.AlmostEqual( 0.0f ) )
+				break;
 
-		// Never turn against original velocity
-		planes[numplanes] = Velocity.Normal;
-		numplanes++;
+			var trace = Trace( Position, mins, maxs, Position + Velocity * timeLeft );
+			travelFraction += trace.Fraction;
 
-		for ( bumpCount = 0; bumpCount < numbumps; bumpCount++ )
-		{
-			// Calculate position we are trying to move to
-			Vector3 end = VectorMA( Position, timeLeft, Velocity );
-
-			// See if we can make it there
-			var trace = Trace( Position, mins, maxs, end );
-
-			DebugOverlay.Line( Position, end );
-
-			if ( trace.StartedSolid )
+			if ( trace.Fraction > 0.03125f )
 			{
-				Log( "entity is completely trapped in another solid" );
-				// entity is completely trapped in another solid
-				Velocity = Velocity.WithZ( 0 );
-				return true;
+				Position = trace.EndPosition + trace.Normal * 0.001f;
+
+				if ( trace.Fraction == 1 )
+					break;
+
+				moveplanes.StartBump( Velocity );
 			}
 
-			if ( trace.Fraction > 0 )
+			if ( bumpCount == 0 && trace.Hit && trace.Normal.Angle( Vector3.Up ) >= MIN_WALK_NORMAL )
 			{
-				// actually covered some distance
-				Log( "actually covered some distance" );
-				Position = trace.EndPosition;
-			}
-
-			if ( trace.Fraction == 1 )
-			{
-				Log( "moved the entire distance" );
-				break; // moved the entire distance
+				HitWall = true;
 			}
 
 			timeLeft -= timeLeft * trace.Fraction;
 
-			//
-			// if this is the same plane we hit before, nudge velocity
-			// out along it, which fixes some epsilon issues with
-			// non-axial planes
-			//
-
-			int i = 0;
-			for ( i = 0; i < numplanes; i++ )
+			Vector3 vel = endVelocity;
+			if ( !moveplanes.TryAdd( trace.Normal, ref vel, ( HitWall ) ? 0.0f : 0.0f ) )
 			{
-				if ( trace.Normal.Dot( planes[i] ) > 0.99f )
-				{
-					Velocity = trace.Normal + Velocity;
-				}
-			}
+				Log( $"MovePlanes: {Velocity} -> {vel}" );
+				endVelocity = vel;
 
-			if ( i < numplanes )
-				continue;
-
-			planes[numplanes] = trace.Normal;
-			numplanes++;
-
-			//
-			// modify velocity so it parallels all of the clip planes
-			//
-
-			// find a plane that it enters
-			for ( i = 0; i < numplanes; i++ )
-			{
-				float into = Velocity.Dot( planes[i] );
-				if ( into >= 0.1f )
-				{
-					continue; // move doesn't interact with the plane
-				}
-
-				// see how hard we are hitting things
-				if ( -into > pml.impactSpeed )
-				{
-					pml.impactSpeed = -into;
-				}
-
-				// slide along the plane
-				Vector3 clipVelocity = ClipVelocity( Velocity, planes[i], OVERCLIP );
-
-				// slide along the plane
-				Vector3 endClipVelocity = ClipVelocity( endVelocity, planes[i], OVERCLIP );
-
-				// see if there is a second plane that the new move enters
-				for ( int j = 0; j < numplanes; j++ )
-				{
-					if ( j == i )
-						continue;
-
-					if ( clipVelocity.Dot( planes[j] ) >= 0.1f )
-						continue;// move doesn't interact with the plane
-
-					// try clipping the move to the plane
-					clipVelocity = ClipVelocity( clipVelocity, planes[i], OVERCLIP );
-					endClipVelocity = ClipVelocity( endClipVelocity, planes[i], OVERCLIP );
-
-					// see if it goes back into the first clip plane
-					if ( clipVelocity.Dot( planes[i] ) >= 0 )
-						continue;
-
-					// slide the original velocity along the crease
-					Vector3 dir = planes[i].Cross( planes[j] ).Normal;
-					float d = dir.Dot( Velocity );
-					clipVelocity = dir * d;
-
-
-					dir = planes[i].Cross( planes[j] ).Normal;
-					d = dir.Dot( endVelocity );
-					endClipVelocity = dir * d;
-
-					// see if there is a third plane that the new move enters
-					for ( int k = 0; k < numplanes; k++ )
-					{
-						if ( k == i || k == j )
-							continue;
-
-						if ( clipVelocity.Dot( planes[k] ) >= 0.1f )
-							continue; // move dont interact with plane
-
-						// stop dead at triple plane interaction
-						Velocity = 0;
-						return true;
-					}
-				}
-
-				// if we have fixed all interactions, try another move
-				Velocity = clipVelocity;
-				endVelocity = endClipVelocity;
-
+				Velocity = endVelocity;
 				break;
 			}
+			endVelocity = vel;
+			Velocity = endVelocity;
 		}
+
+		if ( travelFraction == 0 )
+			Velocity = 0;
 
 		if ( gravity )
 			Velocity = endVelocity;
@@ -506,18 +407,10 @@ public class QuakeWalkController : BasePlayerController
 			.Size( mins, maxs )
 			.Run();
 
+		var color = Pawn.IsServer ? Color.Red : Color.Blue;
+		DebugOverlay.Box( position, mins, maxs, color );
+
 		return tr;
-	}
-
-	private Vector3 VectorMA( Vector3 veca, float scale, Vector3 vecb )
-	{
-		Vector3 vecc = new();
-
-		vecc.x = veca.x + scale * vecb.x;
-		vecc.y = veca.y + scale * vecb.y;
-		vecc.z = veca.z + scale * vecb.z;
-
-		return vecc;
 	}
 
 	public void StepSlideMove( bool gravity )
@@ -585,7 +478,7 @@ public class QuakeWalkController : BasePlayerController
 	{
 		Vector3 point;
 
-		Log( $"{c_pmove}: allsolid" );
+		Log( "CorrectAllSolid" );
 
 		for ( int i = -1; i <= 1; i++ )
 		{
@@ -594,9 +487,9 @@ public class QuakeWalkController : BasePlayerController
 				for ( int k = -1; k <= 1; k++ )
 				{
 					point = Position;
-					point.x += i * 8f;
-					point.y += j * 8f;
-					point.z += k * 8f;
+					point.x += i;
+					point.y += j;
+					point.z += k;
 
 					trace = Trace( point, mins, maxs, point );
 					DebugOverlay.Line( Position, point );
@@ -606,8 +499,8 @@ public class QuakeWalkController : BasePlayerController
 						Log( "Found space for unstuck" );
 						DebugOverlay.Sphere( point, 2f, Color.White );
 
-						//point = Position.WithZ( Position.z - 0.25f );
-						//trace = Trace( Position, mins, maxs, point );
+						point = Position.WithZ( Position.z - 0.25f );
+						trace = Trace( Position, mins, maxs, point );
 						Position = point;
 						pml.groundTrace = trace;
 
@@ -631,8 +524,22 @@ public class QuakeWalkController : BasePlayerController
 		pml.walking = false;
 	}
 
+	public bool Unstuck()
+	{
+		var tr = Trace( Position, mins, maxs, Position );
+		if ( !tr.StartedSolid )
+			return true;
+
+		return CorrectAllSolid( tr );
+	}
+
 	private void GroundTrace()
 	{
+		//
+		// todo (AG): there's some latency here caused by some weird
+		// bouncing stuff... we could probably do with changing this out
+		// completely so that it's instantaneous
+		//
 		Vector3 point;
 		TraceResult trace;
 
@@ -644,6 +551,7 @@ public class QuakeWalkController : BasePlayerController
 		// do something corrective if the trace starts in a solid...
 		if ( trace.StartedSolid )
 		{
+			Log( "do something corrective if the trace starts in a solid..." );
 			if ( CorrectAllSolid( trace ) )
 				return;
 		}
@@ -685,6 +593,44 @@ public class QuakeWalkController : BasePlayerController
 		pml.groundPlane = true;
 		pml.walking = true;
 		GroundEntity = trace.Entity;
+	}
+
+	private void CategorizePosition( bool bStayOnGround )
+	{
+		var point = Position - Vector3.Up * 2;
+		var vBumpOrigin = Position;
+
+		bool bMoveToEndPos = false;
+
+		if ( GroundEntity != null )
+		{
+			bMoveToEndPos = true;
+			point.z -= STEPSIZE;
+		}
+		else if ( bStayOnGround )
+		{
+			bMoveToEndPos = true;
+			point.z -= STEPSIZE;
+		}
+
+		var trace = Trace( vBumpOrigin, mins, maxs, point );
+
+		if ( trace.Entity == null || Vector3.GetAngle( Vector3.Up, trace.Normal ) > MIN_WALK_NORMAL )
+		{
+			GroundTraceMissed();
+			bMoveToEndPos = false;
+		}
+		else
+		{
+			GroundEntity = trace.Entity;
+			pml.groundPlane = true;
+			pml.walking = false;
+		}
+
+		if ( bMoveToEndPos && !trace.StartedSolid && trace.Fraction > 0.0f && trace.Fraction < 1.0f )
+		{
+			Position = trace.EndPosition;
+		}
 	}
 
 	int line = 0;
