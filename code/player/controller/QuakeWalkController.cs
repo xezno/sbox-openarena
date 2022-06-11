@@ -20,6 +20,9 @@ public partial class QuakeWalkController : BasePlayerController
 	private Duck Duck { get; set; }
 	private Vector3 Impulse { get; set; }
 
+	private bool JumpQueued { get; set; }
+	private TimeSince TimeSinceJumpQueued { get; set; }
+
 	public QuakeWalkController()
 	{
 		Duck = new( this );
@@ -87,6 +90,14 @@ public partial class QuakeWalkController : BasePlayerController
 
 		// set groundentity
 		TraceToGround();
+		if ( GroundEntity == null )
+		{
+			if ( Input.Pressed( InputButton.Jump ) )
+			{
+				JumpQueued = true;
+				TimeSinceJumpQueued = 0;
+			}
+		}
 
 		if ( CheckJump() || GroundEntity == null )
 		{
@@ -112,14 +123,17 @@ public partial class QuakeWalkController : BasePlayerController
 		Unstuck.TestAndFix();
 
 		// stay on ground
-		if ( Debug )
+		if ( Debug && Pawn.IsLocalPawn )
 		{
 			DebugOverlay.ScreenText( $"[QUAKE WALK CONTROLLER]\n" +
 				$"Velocity:                    {Velocity}\n" +
 				$"Vel length:                  {Velocity.Length}\n" +
 				$"Position:                    {Position}\n" +
-				$"GroundEntity:                {GroundEntity}",
-				new Vector2( 360, 150 ) );
+				$"GroundEntity:                {GroundEntity}\n" +
+				$"JumpMode:                    {JumpMode}\n" +
+				$"JumpQueued:                  {JumpQueued}\n" +
+				$"TimeSinceJumpQueued:         {TimeSinceJumpQueued}",
+				new Vector2( 360, 150 ), Time.Delta * 2.0f );
 
 			DebugOverlay.Box( Position, mins, maxs, Color.Red );
 		}
@@ -205,8 +219,28 @@ public partial class QuakeWalkController : BasePlayerController
 		if ( GroundEntity == null )
 			return false;
 
-		if ( !Input.Down( InputButton.Jump ) )
-			return false;
+		switch ( JumpMode )
+		{
+			case JumpModes.AutoBhop:
+				if ( !Input.Down( InputButton.Jump ) )
+					return false;
+				break;
+
+			case JumpModes.QueueJump:
+				if ( !( JumpQueued && TimeSinceJumpQueued < 0.5f ) )
+				{
+					if ( !Input.Pressed( InputButton.Jump ) )
+						return false;
+				}
+				break;
+
+			case JumpModes.Vanilla:
+				if ( !Input.Pressed( InputButton.Jump ) )
+					return false;
+				break;
+		}
+
+		JumpQueued = false;
 
 		float jumpVel = JumpVelocity;
 		if ( Duck.IsActive )

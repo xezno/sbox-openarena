@@ -25,4 +25,13 @@ partial class QuakeWalkController
 	float StepSize => 18;
 	float JumpVelocity => 270;
 	float Overclip => 1.001f;
+
+	enum JumpModes
+	{
+		AutoBhop,
+		QueueJump,
+		Vanilla
+	}
+
+	JumpModes JumpMode => JumpModes.AutoBhop;
 }
