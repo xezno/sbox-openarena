@@ -8,31 +8,8 @@
 //
 // https://github.com/id-Software/Quake-III-Arena/blob/master/code/game/bg_pmove.c
 //
-public class QuakeWalkController : BasePlayerController
+public partial class QuakeWalkController : BasePlayerController
 {
-	public float BodyGirth => 32f;
-	public float BodyHeight => 72f;
-	public float EyeHeight => 64f;
-
-	//
-	// Movement parameters
-	//
-	float StopSpeed => 100.0f;
-	float DuckScale => 0.25f;
-	float GroundDistance => 1;
-	float Acceleration => 10.0f;
-	float AirAcceleration => 2.0f;
-	float Friction => 6.0f;
-	float Speed => 320.0f;
-	float AirSpeed => 180.0f;
-	float Gravity => 800f;
-
-	// Can't walk on very steep slopes
-	float MinWalkNormal => 0.7f;
-	float StepSize => 18;
-	float JumpVelocity => 270;
-	float Overclip => 1.001f;
-
 	private Vector3 mins;
 	private Vector3 maxs;
 
@@ -79,12 +56,13 @@ public class QuakeWalkController : BasePlayerController
 		EyeRotation = Input.Rotation;
 		EyeLocalPosition = Vector3.Up * ( EyeHeight * Pawn.Scale );
 
-		// debug
+		// debug line reset
 		line = 0;
 
 		// ducking
 		Duck.PreTick();
 
+		// update bounding box post-duck
 		UpdateBBox();
 
 		// set groundentity
@@ -111,8 +89,7 @@ public class QuakeWalkController : BasePlayerController
 		Unstuck.TestAndFix();
 
 		// stay on ground
-
-		// if ( Debug )
+		if ( Debug )
 		{
 			DebugOverlay.ScreenText( $"[QUAKE WALK CONTROLLER]\n" +
 				$"Velocity:                    {Velocity}\n" +
@@ -120,6 +97,8 @@ public class QuakeWalkController : BasePlayerController
 				$"Position:                    {Position}\n" +
 				$"GroundEntity:                {GroundEntity}",
 				new Vector2( 360, 150 ) );
+
+			DebugOverlay.Box( Position, mins, maxs, Color.Red );
 		}
 	}
 
@@ -285,7 +264,7 @@ public class QuakeWalkController : BasePlayerController
 
 		// Don't decreate velocity when going up or down a slope
 		Velocity = Velocity.Normal;
-		Velocity = Velocity * vel;
+		Velocity *= vel;
 
 		// Don't do anything if standing still
 		if ( Velocity.Length.AlmostEqual( 0 ) )
@@ -296,131 +275,16 @@ public class QuakeWalkController : BasePlayerController
 		StepSlideMove( false );
 	}
 
-	public bool SlideMove( bool gravity )
-	{
-		int bumpCount;
-		Vector3 primalVelocity = Velocity;
-		Vector3 endVelocity = new();
-
-		if ( gravity )
-		{
-			endVelocity = Velocity;
-			endVelocity.z -= Gravity * Time.Delta;
-			Velocity = Velocity.WithZ( ( Velocity.z + endVelocity.z ) * 0.5f );
-			primalVelocity.z = endVelocity.z;
-
-			if ( GroundPlane )
-			{
-				// Slide along the ground plane
-				Velocity = ClipVelocity( Velocity, GroundTrace.Normal, Overclip );
-			}
-		}
-
-		float timeLeft = Time.Delta;
-		float travelFraction = 0;
-		bool HitWall = false;
-
-		using var moveplanes = new VelocityClipPlanes( Velocity );
-
-		for ( bumpCount = 0; bumpCount < moveplanes.Max; bumpCount++ )
-		{
-			if ( Velocity.Length.AlmostEqual( 0.0f ) )
-				break;
-
-			var trace = TraceBBox( Position, Position + Velocity * timeLeft );
-			travelFraction += trace.Fraction;
-
-			if ( trace.Fraction > 0.03125f )
-			{
-				Position = trace.EndPosition + trace.Normal * 0.001f;
-
-				if ( trace.Fraction == 1 )
-					break;
-
-				moveplanes.StartBump( Velocity );
-			}
-
-			if ( bumpCount == 0 && trace.Hit && trace.Normal.Angle( Vector3.Up ) >= MinWalkNormal )
-			{
-				HitWall = true;
-			}
-
-			timeLeft -= timeLeft * trace.Fraction;
-
-			Vector3 vel = endVelocity;
-			if ( !moveplanes.TryAdd( trace.Normal, ref vel, ( HitWall ) ? 0.0f : 0.0f ) )
-			{
-				Log( $"MovePlanes: {Velocity} -> {vel}" );
-				endVelocity = vel;
-
-				Velocity = endVelocity;
-				break;
-			}
-			endVelocity = vel;
-			Velocity = endVelocity;
-		}
-
-		if ( travelFraction == 0 )
-			Velocity = 0;
-
-		if ( gravity )
-			Velocity = endVelocity;
-
-		Log( $"Bumps: {bumpCount}" );
-
-		return bumpCount != 0;
-	}
-
 	public override TraceResult TraceBBox( Vector3 start, Vector3 end, float liftFeet = 0 )
 	{
 		return base.TraceBBox( start, end, mins, maxs, liftFeet );
-	}
-
-	public void StepSlideMove( bool gravity )
-	{
-		Vector3 start_o = Position;
-		Vector3 start_v = Velocity;
-
-		if ( !SlideMove( gravity ) )
-		{
-			Log( "SlideMove got exactly where we wanted to go first try" );
-			return; // We got exactly where we wanted to go first try
-		}
-
-		Vector3 down = start_o;
-		down.z -= StepSize;
-
-		var trace = TraceBBox( start_o, down );
-		Vector3 up = new Vector3( 0, 0, 1 );
-
-		// never step up when you still have up velocity
-		if ( Velocity.z > 0 && ( trace.Fraction == 1.0f || trace.Normal.Dot( up ) < 0.7f ) )
-			return;
-
-		up = start_o;
-		up.z += StepSize;
-
-		trace = TraceBBox( start_o, down );
-		if ( trace.StartedSolid )
-		{
-			// cant step up
-			Log( $"Can't step up" );
-			return;
-		}
-
-		// try slidemove from this position
-		Position = trace.EndPosition;
-		Velocity = start_v;
-
-		SlideMove( gravity );
-		Velocity = ClipVelocity( Velocity, trace.Normal, Overclip );
 	}
 
 	private bool CorrectAllSolid()
 	{
 		Vector3 point;
 
-		Log( "CorrectAllSolid" );
+		LogToScreen( "CorrectAllSolid" );
 
 		{
 			for ( int i = -1; i <= 1; i++ )
@@ -439,7 +303,7 @@ public class QuakeWalkController : BasePlayerController
 
 						if ( !trace.StartedSolid )
 						{
-							Log( "Found space for correctallsolid" );
+							LogToScreen( "Found space for correctallsolid" );
 							DebugOverlay.Sphere( point, 2f, Color.White );
 
 							point = Position.WithZ( Position.z - GroundDistance );
@@ -460,23 +324,14 @@ public class QuakeWalkController : BasePlayerController
 
 	private void TraceToGround()
 	{
-		//
-		// todo (AG): there's some latency here caused by some weird
-		// bouncing stuff... we could probably do with changing this out
-		// completely so that it's instantaneous
-		//
-		Vector3 point;
-		TraceResult trace;
-
-		point = new Vector3( Position ).WithZ( Position.z - GroundDistance );
-		trace = TraceBBox( Position, point );
-
+		Vector3 point = new Vector3( Position ).WithZ( Position.z - GroundDistance );
+		TraceResult trace = TraceBBox( Position, point );
 		GroundTrace = trace;
 
 		// do something corrective if the trace starts in a solid...
 		if ( trace.StartedSolid )
 		{
-			Log( "do something corrective if the trace starts in a solid..." );
+			LogToScreen( "do something corrective if the trace starts in a solid..." );
 			if ( CorrectAllSolid() )
 				return;
 		}
@@ -490,8 +345,7 @@ public class QuakeWalkController : BasePlayerController
 		// check if getting thrown off the ground
 		if ( Velocity.z > 0 && Velocity.Dot( trace.Normal ) > 10.0f )
 		{
-			Log( $"Kickoff" );
-
+			LogToScreen( $"Kickoff" );
 			SetGroundEntity( null );
 			return;
 		}
@@ -499,11 +353,7 @@ public class QuakeWalkController : BasePlayerController
 		// slopes that are too steep will not be considered onground
 		if ( trace.Entity != null && trace.Normal.z < MinWalkNormal )
 		{
-			Log( $"Too steep" );
-
-			// ID FIXME: if they can't slide down the slope, let them
-			// walk ( sharp crevices )
-
+			LogToScreen( $"Too steep" );
 			SetGroundEntity( null );
 			return;
 		}
@@ -547,7 +397,10 @@ public class QuakeWalkController : BasePlayerController
 		}
 	}
 
-	private void SetGroundEntity( TraceResult tr ) => SetGroundEntity( tr.Entity );
+	private void SetGroundEntity( TraceResult tr )
+	{
+		SetGroundEntity( tr.Entity );
+	}
 
 	private void SetGroundEntity( Entity ent )
 	{
@@ -563,15 +416,5 @@ public class QuakeWalkController : BasePlayerController
 		}
 
 		GroundEntity = ent;
-	}
-
-	int line = 0;
-	private void Log( string text )
-	{
-		string realm = Pawn.IsClient ? "CL" : "SV";
-		float starty = Pawn.IsClient ? 150 : 250;
-
-		var pos = new Vector2( 760, starty + ( line++ * 16 ) );
-		DebugOverlay.ScreenText( $"{realm}: {text}", pos );
 	}
 }
