@@ -30,7 +30,7 @@ public partial class JumpPad : BaseTrigger
 
 		var direction = ( target.Position - other.Position ).Normal;
 
-		if ( player.Controller is WalkController controller )
+		if ( player.Controller is QuakeWalkController controller )
 		{
 			var impulse = ( direction * Force ) + ( Vector3.Up * VerticalForce );
 			controller.ApplyImpulse( impulse );

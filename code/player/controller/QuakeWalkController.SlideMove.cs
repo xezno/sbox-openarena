@@ -2,7 +2,7 @@
 
 partial class QuakeWalkController
 {
-	public bool SlideMove( bool gravity )
+	private bool SlideMove( bool gravity )
 	{
 		int bumpCount;
 		Vector3 primalVelocity = Velocity;
@@ -76,7 +76,7 @@ partial class QuakeWalkController
 
 		return bumpCount != 0;
 	}
-	public void StepSlideMove( bool gravity )
+	private void StepSlideMove( bool gravity )
 	{
 		Vector3 start_o = Position;
 		Vector3 start_v = Velocity;
@@ -115,5 +115,4 @@ partial class QuakeWalkController
 		SlideMove( gravity );
 		Velocity = ClipVelocity( Velocity, trace.Normal, Overclip );
 	}
-
 }

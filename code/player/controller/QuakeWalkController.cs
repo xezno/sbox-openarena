@@ -18,11 +18,17 @@ public partial class QuakeWalkController : BasePlayerController
 	private TraceResult GroundTrace { get; set; }
 	private Unstuck Unstuck { get; set; }
 	private Duck Duck { get; set; }
+	private Vector3 Impulse { get; set; }
 
 	public QuakeWalkController()
 	{
 		Duck = new( this );
 		Unstuck = new Unstuck( this );
+	}
+
+	public void ApplyImpulse( Vector3 impulse )
+	{
+		Impulse += impulse;
 	}
 
 	public override void FrameSimulate()
@@ -51,6 +57,17 @@ public partial class QuakeWalkController : BasePlayerController
 		SetBBox( mins, maxs );
 	}
 
+	private void UpdateVelocity()
+	{
+		if ( Impulse.Length > 0 )
+		{
+			SetGroundEntity( null );
+
+			Velocity += Impulse;
+			Impulse = Vector3.Zero;
+		}
+	}
+
 	public override void Simulate()
 	{
 		EyeRotation = Input.Rotation;
@@ -64,6 +81,9 @@ public partial class QuakeWalkController : BasePlayerController
 
 		// update bounding box post-duck
 		UpdateBBox();
+
+		// update velocity based on any impulse applied
+		UpdateVelocity();
 
 		// set groundentity
 		TraceToGround();
@@ -115,7 +135,7 @@ public partial class QuakeWalkController : BasePlayerController
 		return outVec;
 	}
 
-	public void ApplyFriction()
+	private void ApplyFriction()
 	{
 		if ( GroundEntity == null )
 			return;
@@ -155,7 +175,7 @@ public partial class QuakeWalkController : BasePlayerController
 		Velocity *= newspeed;
 	}
 
-	public void Accelerate( Vector3 wishDir, float wishSpeed, float accel )
+	private void Accelerate( Vector3 wishDir, float wishSpeed, float accel )
 	{
 		float addspeed, accelspeed, currentspeed;
 
@@ -177,7 +197,7 @@ public partial class QuakeWalkController : BasePlayerController
 		Velocity += accelspeed * wishDir;
 	}
 
-	public bool CheckJump()
+	private bool CheckJump()
 	{
 		if ( GroundEntity == null )
 			return false;
@@ -192,7 +212,7 @@ public partial class QuakeWalkController : BasePlayerController
 		return true;
 	}
 
-	public void AirMove()
+	private void AirMove()
 	{
 		ApplyFriction();
 
