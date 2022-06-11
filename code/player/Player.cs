@@ -3,6 +3,7 @@
 partial class Player
 {
 	[Net] private bool IsInvincible { get; set; }
+	[ConVar.Replicated( "oa_debug_player" )] public static bool Debug { get; set; }
 
 	private Announcer Announcer { get; set; }
 
@@ -83,27 +84,30 @@ partial class Player
 
 		Controller?.FrameSimulate( cl, this, Animator );
 
-		DebugOverlay.ScreenText( "[PLAYER]\n" +
-			$"ActiveChild:                 {ActiveChild}\n" +
-			$"LastActiveChild:             {LastActiveChild}\n" +
-			$"Health:                      {Health}\n" +
-			$"God:                         {IsInvincible}",
-			new Vector2( 60, 150 ) );
+		if ( Debug )
+		{
+			DebugOverlay.ScreenText( "[PLAYER]\n" +
+				$"ActiveChild:                 {ActiveChild}\n" +
+				$"LastActiveChild:             {LastActiveChild}\n" +
+				$"Health:                      {Health}\n" +
+				$"God:                         {IsInvincible}",
+				new Vector2( 60, 150 ) );
 
-		DebugOverlay.ScreenText( "[INVENTORY]\n" +
-			$"ActiveSlot:                  {Inventory.GetActiveSlot()}\n" +
-			$"Active:                      {Inventory.Active}\n" +
-			$"Slot 0:                      {Inventory.GetSlot( 0 )}\n" +
-			$"Slot 1:                      {Inventory.GetSlot( 1 )}\n" +
-			$"Slot 2:                      {Inventory.GetSlot( 2 )}\n" +
-			$"Slot 3:                      {Inventory.GetSlot( 3 )}\n" +
-			$"Slot 4:                      {Inventory.GetSlot( 4 )}\n" +
-			$"Slot 5:                      {Inventory.GetSlot( 5 )}\n" +
-			$"Slot 6:                      {Inventory.GetSlot( 6 )}\n" +
-			$"Slot 7:                      {Inventory.GetSlot( 7 )}\n" +
-			$"Slot 8:                      {Inventory.GetSlot( 8 )}\n" +
-			$"Slot 9:                      {Inventory.GetSlot( 9 )}\n",
-			new Vector2( 60, 350 ) );
+			DebugOverlay.ScreenText( "[INVENTORY]\n" +
+				$"ActiveSlot:                  {Inventory.GetActiveSlot()}\n" +
+				$"Active:                      {Inventory.Active}\n" +
+				$"Slot 0:                      {Inventory.GetSlot( 0 )}\n" +
+				$"Slot 1:                      {Inventory.GetSlot( 1 )}\n" +
+				$"Slot 2:                      {Inventory.GetSlot( 2 )}\n" +
+				$"Slot 3:                      {Inventory.GetSlot( 3 )}\n" +
+				$"Slot 4:                      {Inventory.GetSlot( 4 )}\n" +
+				$"Slot 5:                      {Inventory.GetSlot( 5 )}\n" +
+				$"Slot 6:                      {Inventory.GetSlot( 6 )}\n" +
+				$"Slot 7:                      {Inventory.GetSlot( 7 )}\n" +
+				$"Slot 8:                      {Inventory.GetSlot( 8 )}\n" +
+				$"Slot 9:                      {Inventory.GetSlot( 9 )}\n",
+				new Vector2( 60, 350 ) );
+		}
 	}
 
 	public override void TakeDamage( DamageInfo info )

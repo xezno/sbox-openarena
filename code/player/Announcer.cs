@@ -2,6 +2,8 @@
 
 public class Announcer : Entity
 {
+	[ConVar.Replicated( "oa_debug_announcer" )] public static bool Debug { get; set; }
+
 	private int FastKillStreak { get; set; }
 	private int CurrentKillStreak { get; set; }
 	private TimeSince TimeSinceLastKill { get; set; }
@@ -31,15 +33,17 @@ public class Announcer : Entity
 	[Event.Tick.Client]
 	public void OnTick()
 	{
-		var queueString = string.Join( ", ", SoundQueue.Select( x => x.ToString() ).ToList() );
-
-		DebugOverlay.ScreenText( "[ANNOUNCER]\n" +
-			$"CurrentKillStreak:           {CurrentKillStreak}\n" +
-			$"FastKillStreak:              {FastKillStreak}\n" +
-			$"TimeSinceLastKill:           {TimeSinceLastKill}\n" +
-			$"Sound Queue Count:           {SoundQueue.Count}\n" +
-			$"Sound Queue:                 {queueString}",
-			new Vector2( 60, 600 ) );
+		if ( Debug )
+		{
+			var queueString = string.Join( ", ", SoundQueue.Select( x => x.ToString() ).ToList() );
+			DebugOverlay.ScreenText( "[ANNOUNCER]\n" +
+				$"CurrentKillStreak:           {CurrentKillStreak}\n" +
+				$"FastKillStreak:              {FastKillStreak}\n" +
+				$"TimeSinceLastKill:           {TimeSinceLastKill}\n" +
+				$"Sound Queue Count:           {SoundQueue.Count}\n" +
+				$"Sound Queue:                 {queueString}",
+				new Vector2( 60, 600 ) );
+		}
 
 		//
 		// Play sounds from the sound queue if we can

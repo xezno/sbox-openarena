@@ -2,6 +2,8 @@
 
 public class ViewModel : BaseViewModel
 {
+	[ConVar.Replicated( "oa_debug_viewmodel" )] public static bool Debug { get; set; }
+
 	private const float DefaultFov = 70f;
 
 	private float Fov = DefaultFov;
@@ -29,13 +31,16 @@ public class ViewModel : BaseViewModel
 		BuildWalkEffects( ref camSetup );
 		ApplyEffects( ref camSetup );
 
-		DebugOverlay.ScreenText( "[VIEWMODEL]\n" +
-			$"TargetOffset:                {TargetOffset}\n" +
-			$"Position:                    {Position}\n" +
-			$"Fov:                         {Fov}\n" +
-			$"LerpRate:                    {LerpRate}\n" +
-			$"Rotation:                    {Rotation}",
-			new Vector2( 60, 250 ) );
+		if ( Debug )
+		{
+			DebugOverlay.ScreenText( "[VIEWMODEL]\n" +
+				$"TargetOffset:                {TargetOffset}\n" +
+				$"Position:                    {Position}\n" +
+				$"Fov:                         {Fov}\n" +
+				$"LerpRate:                    {LerpRate}\n" +
+				$"Rotation:                    {Rotation}",
+				new Vector2( 60, 250 ) );
+		}
 	}
 
 	private void ApplyEffects( ref CameraSetup camSetup )
