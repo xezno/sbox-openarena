@@ -46,7 +46,7 @@ partial class QuakeWalkController
 				moveplanes.StartBump( Velocity );
 			}
 
-			if ( bumpCount == 0 && trace.Hit && trace.Normal.Angle( Vector3.Up ) >= MinWalkNormal )
+			if ( bumpCount == 0 && trace.Hit && trace.Normal.Angle( Vector3.Up ) >= MaxWalkAngle )
 			{
 				HitWall = true;
 			}
@@ -100,12 +100,34 @@ partial class QuakeWalkController
 		up = start_o;
 		up.z += StepSize;
 
-		trace = TraceBBox( start_o, down );
+		// test the player position if they were a stepheight higher
+		trace = TraceBBox( start_o, up );
+
 		if ( trace.StartedSolid )
 		{
 			// cant step up
 			LogToScreen( $"Can't step up" );
 			return;
+		}
+
+		float stepSize = trace.EndPosition.z - start_o.z;
+		Position = trace.EndPosition;
+		Velocity = start_v;
+
+		SlideMove( gravity );
+		// push down the final amount
+		down = Position;
+		down.z -= stepSize;
+		trace = TraceBBox( Position, down );
+
+		if ( !trace.StartedSolid )
+		{
+			Position = trace.EndPosition;
+		}
+
+		if ( trace.Fraction < 1.0f )
+		{
+			Velocity = ClipVelocity( Velocity, trace.Normal, Overclip );
 		}
 
 		// try slidemove from this position

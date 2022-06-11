@@ -88,10 +88,12 @@ public partial class QuakeWalkController : BasePlayerController
 		// set groundentity
 		TraceToGround();
 
+		bool stayOnGround = false;
 		if ( GroundEntity != null )
 		{
 			// walking on ground
 			WalkMove();
+			stayOnGround = true;
 		}
 		else
 		{
@@ -100,7 +102,7 @@ public partial class QuakeWalkController : BasePlayerController
 		}
 
 		// stick to ground
-		CategorizePosition( GroundEntity != null );
+		CategorizePosition( stayOnGround );
 
 		// set groundentity
 		TraceToGround();
@@ -376,8 +378,12 @@ public partial class QuakeWalkController : BasePlayerController
 		if ( trace.StartedSolid )
 		{
 			LogToScreen( "do something corrective if the trace starts in a solid..." );
-			if ( CorrectAllSolid() )
-				return;
+			// AG: we don't actually do anything here because
+			// unstuck.testandfix() will handle it later on
+
+			// uncomment for some scuffed 1990s stuck-handling code
+			//if ( CorrectAllSolid() )
+			//	return;
 		}
 
 		// if the trace didn't hit anything, we are in free fall
@@ -405,37 +411,39 @@ public partial class QuakeWalkController : BasePlayerController
 		SetGroundEntity( trace );
 	}
 
-	private void CategorizePosition( bool bStayOnGround )
+	private void CategorizePosition( bool stayOnGround )
 	{
-		var point = Position - Vector3.Up * 2;
-		var vBumpOrigin = Position;
+		// if the player hull point one unit down is solid, the player is on ground
+		// see if standing on something solid
+		var point = Position - Vector3.Up * 1;
+		var bump_o = Position;
 
-		bool bMoveToEndPos = false;
+		bool moveToEndPos = false;
 
 		if ( GroundEntity != null )
 		{
-			bMoveToEndPos = true;
+			moveToEndPos = true;
 			point.z -= StepSize;
 		}
-		else if ( bStayOnGround )
+		else if ( stayOnGround )
 		{
-			bMoveToEndPos = true;
+			moveToEndPos = true;
 			point.z -= StepSize;
 		}
 
-		var trace = TraceBBox( vBumpOrigin, point );
+		var trace = TraceBBox( bump_o, point );
 
-		if ( trace.Entity == null || Vector3.GetAngle( Vector3.Up, trace.Normal ) > MinWalkNormal )
+		if ( trace.Entity == null || Vector3.GetAngle( Vector3.Up, trace.Normal ) > MaxWalkAngle )
 		{
 			SetGroundEntity( null );
-			bMoveToEndPos = false;
+			moveToEndPos = false;
 		}
 		else
 		{
 			SetGroundEntity( trace );
 		}
 
-		if ( bMoveToEndPos && !trace.StartedSolid && trace.Fraction > 0.0f && trace.Fraction < 1.0f )
+		if ( moveToEndPos && !trace.StartedSolid && trace.Fraction > 0.0f && trace.Fraction < 1.0f )
 		{
 			Position = trace.EndPosition;
 		}
