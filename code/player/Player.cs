@@ -134,7 +134,7 @@ partial class Player
 		// Tell attacker that they did damage to us
 		if ( IsServer && info.Attacker != this )
 		{
-			RpcDamageDealt( To.Single( info.Attacker ), LifeState == LifeState.Dead, NetworkIdent );
+			RpcDamageDealt( To.Single( info.Attacker ), LifeState == LifeState.Dead, info.Damage, NetworkIdent );
 		}
 
 	}
@@ -154,7 +154,7 @@ partial class Player
 	}
 
 	[ClientRpc]
-	public void RpcDamageDealt( bool isKill, int victimNetworkId )
+	public void RpcDamageDealt( bool isKill, float damageAmount, int victimNetworkId )
 	{
 		var victim = All.OfType<Player>().First( x => x.NetworkIdent == victimNetworkId );
 		Log.Trace( $"We did damage to {victim}" );
@@ -162,7 +162,11 @@ partial class Player
 		if ( isKill )
 			PlaySound( "kill" );
 
-		PlaySound( "hit" );
+		float t = damageAmount.LerpInverse( 0.0f, 100.0f );
+		float pitch = MathX.LerpTo( 1.0f, 1.25f, t );
+
+		// TODO(AG) : Am I fucking something up or does SetPitch not work
+		Sound.FromScreen( "hit" ).SetRandomPitch( pitch, pitch );
 	}
 
 	public void RenderHud( Vector2 screenSize )
