@@ -39,8 +39,6 @@ public class QuakeWalkController : BasePlayerController
 	float MIN_WALK_NORMAL => 0.7f;     // can't walk on very steep slopes
 	float STEPSIZE => 18;
 	float JUMP_VELOCITY => 270;
-	float TIMER_LAND => 130;
-	float TIMER_GESTURE => ( 34 * 66 + 50 );
 	float OVERCLIP => 1.001f;
 
 	int c_pmove => Pawn.NetworkIdent;
@@ -48,22 +46,9 @@ public class QuakeWalkController : BasePlayerController
 	private Vector3 mins;
 	private Vector3 maxs;
 
-	struct pml_t
-	{
-		public Vector3 forward, right, up;
-
-		public bool walking;
-		public bool groundPlane;
-		public TraceResult groundTrace;
-
-		public float impactSpeed;
-
-		public Vector3 previousOrigin;
-		public Vector3 previousVelocity;
-		public int previousWaterLevel;
-	}
-
-	pml_t pml;
+	private bool Walking { get; set; }
+	private bool GroundPlane { get; set; }
+	private TraceResult GroundTrace { get; set; }
 
 	public override void FrameSimulate()
 	{
@@ -97,14 +82,10 @@ public class QuakeWalkController : BasePlayerController
 		// debug
 		line = 0;
 
-		// pml
-		pml.forward = EyeRotation.Forward;
-		pml.right = EyeRotation.Left;
-
 		UpdateBBox();
 
 		// set groundentity
-		GroundTrace();
+		TraceToGround();
 
 		if ( GroundEntity != null )
 		{
@@ -121,7 +102,7 @@ public class QuakeWalkController : BasePlayerController
 		CategorizePosition( GroundEntity != null );
 
 		// set groundentity
-		GroundTrace();
+		TraceToGround();
 
 		// check if we're stuck and fix that
 		Unstuck();
@@ -145,13 +126,9 @@ public class QuakeWalkController : BasePlayerController
 		float backoff = inVec.Dot( normal );
 
 		if ( backoff < 0 )
-		{
 			backoff *= overbounce;
-		}
 		else
-		{
 			backoff /= overbounce;
-		}
 
 		outVec = inVec - ( normal * backoff );
 		return outVec;
@@ -164,15 +141,12 @@ public class QuakeWalkController : BasePlayerController
 
 		Vector3 vec;
 		float speed, newspeed, control;
-
 		float drop;
 
 		vec = Velocity;
 
-		if ( pml.walking )
-		{
+		if ( Walking )
 			vec.z = 0;
-		}
 
 		speed = vec.Length;
 
@@ -187,7 +161,7 @@ public class QuakeWalkController : BasePlayerController
 
 		drop = 0;
 
-		if ( pml.walking )
+		if ( Walking )
 		{
 			control = speed < pm_stopspeed ? pm_stopspeed : speed;
 			drop += control * pm_friction * Time.Delta;
@@ -196,9 +170,7 @@ public class QuakeWalkController : BasePlayerController
 		newspeed = speed - drop;
 
 		if ( newspeed < 0 )
-		{
 			newspeed = 0;
-		}
 
 		newspeed /= speed;
 
@@ -236,10 +208,9 @@ public class QuakeWalkController : BasePlayerController
 		if ( !Input.Down( InputButton.Jump ) )
 			return false;
 
-		Velocity = Velocity.WithZ( 270 );
+		Velocity = Velocity.WithZ( JUMP_VELOCITY );
 
-		pml.groundPlane = false;
-		pml.walking = false;
+		SetGroundEntity( null );
 
 		return true;
 	}
@@ -252,15 +223,18 @@ public class QuakeWalkController : BasePlayerController
 		Friction();
 
 		float fMove = Input.Forward;
-		float sMove = Input.Left;
+		float sMove = -Input.Left;
 
-		pml.forward.z = 0;
-		pml.right.z = 0;
+		Vector3 forward = EyeRotation.Forward.WithZ( 0 );
+		Vector3 right = EyeRotation.Right.WithZ( 0 );
 
-		pml.forward = pml.forward.Normal;
-		pml.right = pml.right.Normal;
+		forward = ClipVelocity( forward, GroundTrace.Normal, OVERCLIP );
+		right = ClipVelocity( right, GroundTrace.Normal, OVERCLIP );
 
-		wishVel = pml.forward * fMove + pml.right * sMove;
+		forward = forward.Normal;
+		right = right.Normal;
+
+		wishVel = forward * fMove + right * sMove;
 		wishVel.z = 0;
 
 		Vector3 wishDir = wishVel.Normal;
@@ -269,9 +243,9 @@ public class QuakeWalkController : BasePlayerController
 
 		Accelerate( wishDir, wishSpeed, pm_airaccelerate );
 
-		if ( pml.groundPlane )
+		if ( GroundPlane )
 		{
-			Velocity = ClipVelocity( Velocity, pml.groundTrace.Normal, OVERCLIP );
+			Velocity = ClipVelocity( Velocity, GroundTrace.Normal, OVERCLIP );
 		}
 
 		StepSlideMove( true );
@@ -291,18 +265,18 @@ public class QuakeWalkController : BasePlayerController
 		Friction();
 
 		float fMove = Input.Forward;
-		float sMove = Input.Left;
+		float sMove = -Input.Left;
 
-		pml.forward.z = 0;
-		pml.right.z = 0;
+		Vector3 forward = EyeRotation.Forward.WithZ( 0 );
+		Vector3 right = EyeRotation.Right.WithZ( 0 );
 
-		pml.forward = ClipVelocity( pml.forward, pml.groundTrace.Normal, OVERCLIP );
-		pml.right = ClipVelocity( pml.right, pml.groundTrace.Normal, OVERCLIP );
+		forward = ClipVelocity( forward, GroundTrace.Normal, OVERCLIP );
+		right = ClipVelocity( right, GroundTrace.Normal, OVERCLIP );
 
-		pml.forward = pml.forward.Normal;
-		pml.right = pml.right.Normal;
+		forward = forward.Normal;
+		right = right.Normal;
 
-		Vector3 wishVel = fMove * pml.forward + sMove * pml.right;
+		Vector3 wishVel = fMove * forward + sMove * right;
 
 		Vector3 wishDir = wishVel.Normal;
 		float wishSpeed = wishDir.Length;
@@ -312,7 +286,7 @@ public class QuakeWalkController : BasePlayerController
 
 		// Slide along the ground plane
 		float vel = Velocity.Length;
-		Velocity = ClipVelocity( Velocity, pml.groundTrace.Normal, OVERCLIP );
+		Velocity = ClipVelocity( Velocity, GroundTrace.Normal, OVERCLIP );
 
 		// Don't decreate velocity when going up or down a slope
 		Velocity = Velocity.Normal;
@@ -340,10 +314,10 @@ public class QuakeWalkController : BasePlayerController
 			Velocity = Velocity.WithZ( ( Velocity.z + endVelocity.z ) * 0.5f );
 			primalVelocity.z = endVelocity.z;
 
-			if ( pml.groundPlane )
+			if ( GroundPlane )
 			{
 				// Slide along the ground plane
-				Velocity = ClipVelocity( Velocity, pml.groundTrace.Normal, OVERCLIP );
+				Velocity = ClipVelocity( Velocity, GroundTrace.Normal, OVERCLIP );
 			}
 		}
 
@@ -475,7 +449,7 @@ public class QuakeWalkController : BasePlayerController
 						point = Position.WithZ( Position.z - pm_groundDistance );
 						trace = TraceBBox( Position, point );
 						Position = point;
-						pml.groundTrace = trace;
+						GroundTrace = trace;
 
 						return true;
 					}
@@ -483,10 +457,7 @@ public class QuakeWalkController : BasePlayerController
 			}
 		}
 
-		GroundEntity = null;
-		pml.groundPlane = false;
-		pml.walking = false;
-
+		SetGroundEntity( null );
 		return false;
 	}
 
@@ -499,7 +470,7 @@ public class QuakeWalkController : BasePlayerController
 		return CorrectAllSolid();
 	}
 
-	private void GroundTrace()
+	private void TraceToGround()
 	{
 		//
 		// todo (AG): there's some latency here caused by some weird
@@ -512,7 +483,7 @@ public class QuakeWalkController : BasePlayerController
 		point = new Vector3( Position ).WithZ( Position.z - pm_groundDistance );
 		trace = TraceBBox( Position, point );
 
-		pml.groundTrace = trace;
+		GroundTrace = trace;
 
 		// do something corrective if the trace starts in a solid...
 		if ( trace.StartedSolid )
@@ -594,13 +565,13 @@ public class QuakeWalkController : BasePlayerController
 	{
 		if ( ent == null )
 		{
-			pml.groundPlane = false;
-			pml.walking = false;
+			GroundPlane = false;
+			Walking = false;
 		}
 		else
 		{
-			pml.groundPlane = true;
-			pml.walking = true;
+			GroundPlane = true;
+			Walking = true;
 		}
 
 		GroundEntity = ent;
