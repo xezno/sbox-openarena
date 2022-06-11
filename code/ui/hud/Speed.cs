@@ -3,5 +3,5 @@
 [UseTemplate]
 internal class Speed : Panel
 {
-	public string PlayerSpeed => $"{MathF.Abs( Local.Pawn.Velocity.Dot( Local.Pawn.EyeRotation.Forward ) ).FloorToInt()} u/s";
+	public string PlayerSpeed => $"{MathF.Abs( Local.Pawn.Velocity.WithZ( 0 ).Length ).FloorToInt()} u/s";
 }
