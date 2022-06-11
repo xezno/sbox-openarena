@@ -20,6 +20,8 @@ public class QuakeWalkController : BasePlayerController
 	float pm_swimScale => 0.50f;
 	float pm_wadeScale => 0.70f;
 
+	float pm_groundDistance => 1;
+
 	float pm_accelerate => 10.0f;
 	float pm_airaccelerate => 1.0f;
 	float pm_wateraccelerate => 4.0f;
@@ -327,7 +329,7 @@ public class QuakeWalkController : BasePlayerController
 
 	public bool SlideMove( bool gravity )
 	{
-		int bumpCount = 0;
+		int bumpCount;
 		Vector3 primalVelocity = Velocity;
 		Vector3 endVelocity = new();
 
@@ -412,12 +414,11 @@ public class QuakeWalkController : BasePlayerController
 
 		if ( !SlideMove( gravity ) )
 		{
-			Log( "SlideMove Success" );
+			Log( "SlideMove got exactly where we wanted to go first try" );
 			return; // We got exactly where we wanted to go first try
 		}
 
 		Vector3 down = start_o;
-
 		down.z -= STEPSIZE;
 
 		var trace = TraceBBox( start_o, down );
@@ -427,45 +428,26 @@ public class QuakeWalkController : BasePlayerController
 		if ( Velocity.z > 0 && ( trace.Fraction == 1.0f || trace.Normal.Dot( up ) < 0.7f ) )
 			return;
 
-		Vector3 down_o = Position;
-		Vector3 down_v = Velocity;
-
 		up = start_o;
 		up.z += STEPSIZE;
 
 		trace = TraceBBox( start_o, down );
 		if ( trace.StartedSolid )
 		{
-			Log( $"{c_pmove}: bend can't step" );
-
-			return;// cant step up
+			// cant step up
+			Log( $"Can't step up" );
+			return;
 		}
 
-		float stepSize = trace.EndPosition.z - start_o.z;
 		// try slidemove from this position
 		Position = trace.EndPosition;
 		Velocity = start_v;
 
 		SlideMove( gravity );
-
-		// push down the final amount
-		down = Position;
-		down.z -= stepSize;
-
-		trace = TraceBBox( Position, down );
-
-		if ( !trace.StartedSolid )
-		{
-			Position = trace.EndPosition;
-		}
-
-		if ( trace.Fraction < 1.0f )
-		{
-			Velocity = ClipVelocity( Velocity, trace.Normal, OVERCLIP );
-		}
+		Velocity = ClipVelocity( Velocity, trace.Normal, OVERCLIP );
 	}
 
-	private bool CorrectAllSolid( TraceResult trace )
+	private bool CorrectAllSolid()
 	{
 		Vector3 point;
 
@@ -482,7 +464,7 @@ public class QuakeWalkController : BasePlayerController
 					point.y += j;
 					point.z += k;
 
-					trace = TraceBBox( point, point );
+					var trace = TraceBBox( point, point );
 					DebugOverlay.Line( Position, point );
 
 					if ( !trace.StartedSolid )
@@ -490,7 +472,7 @@ public class QuakeWalkController : BasePlayerController
 						Log( "Found space for unstuck" );
 						DebugOverlay.Sphere( point, 2f, Color.White );
 
-						point = Position.WithZ( Position.z - 0.25f );
+						point = Position.WithZ( Position.z - pm_groundDistance );
 						trace = TraceBBox( Position, point );
 						Position = point;
 						pml.groundTrace = trace;
@@ -521,7 +503,7 @@ public class QuakeWalkController : BasePlayerController
 		if ( !tr.StartedSolid )
 			return true;
 
-		return CorrectAllSolid( tr );
+		return CorrectAllSolid();
 	}
 
 	private void GroundTrace()
@@ -534,7 +516,7 @@ public class QuakeWalkController : BasePlayerController
 		Vector3 point;
 		TraceResult trace;
 
-		point = new Vector3( Position ).WithZ( Position.z - 0.25f );
+		point = new Vector3( Position ).WithZ( Position.z - pm_groundDistance );
 		trace = TraceBBox( Position, point );
 
 		pml.groundTrace = trace;
@@ -543,7 +525,7 @@ public class QuakeWalkController : BasePlayerController
 		if ( trace.StartedSolid )
 		{
 			Log( "do something corrective if the trace starts in a solid..." );
-			if ( CorrectAllSolid( trace ) )
+			if ( CorrectAllSolid() )
 				return;
 		}
 
