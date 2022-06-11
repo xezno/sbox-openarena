@@ -9,6 +9,7 @@ global using System.Threading.Tasks;
 global using System.Collections;
 global using System.Collections.Generic;
 global using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.Design;
 
 namespace OpenArena;
 
@@ -56,35 +57,55 @@ public partial class ArenaGame : Sandbox.Game
 	private void DrawKeyOverlay( Vector2 screenSize )
 	{
 		var draw = Render.Draw2D;
-		void DrawInputKey( Vector2 pos, string key, InputButton button, Vector2? size = null )
+		void DrawInputKey( Vector2 pos, InputButton button, Vector2? size = null )
 		{
+			var key = Input.GetButtonOrigin( button ).ToUpper();
+			var pressed = Input.Down( button );
 			size ??= new Vector2( 64, 64 );
 
-			bool pressed = Input.Down( button );
-			var color = pressed ? Color.White : Color.White.WithAlpha( 0.1f );
-			var corners = new Vector4( 8 );
+			//
+			// Draw box
+			//
+			var corners = new Vector4( 4 );
+			var boxColor = pressed ? Color.White
+								   : Color.White.WithAlpha( 0.1f );
+			var boxBorderColor = pressed ? Color.White
+										 : Color.White.WithAlpha( 0.2f );
 
-			draw.Color = Color.White;
-			draw.BoxWithBorder( new Rect( pos, size ?? default ), color, 2f, Color.White, corners );
+			// This is obsolete, but what do we replace it with?
+			draw.BoxWithBorder( new Rect( pos, size ?? default ), boxColor, 2f, boxBorderColor, corners );
 
+			//
+			// Draw text
+			//
 			var textSize = draw.TextSize( pos, key );
-			var center = ( size ?? default ) / 2.0f - new Vector2( textSize.width / 2.0f, textSize.height / 2.0f );
+			var textCenter = ( size ?? default ) / 2.0f
+							 - new Vector2( textSize.width / 2.0f, textSize.height / 2.0f );
 
 			draw.FontFamily = "Rajdhani";
 			draw.FontWeight = 800;
 			draw.Color = pressed ? Color.Black : Color.White;
-
-			draw.Text( pos + center, key );
+			draw.Text( pos + textCenter, key );
 		}
 
-		Vector2 start = new( screenSize.x - 128 - 32 - 64, screenSize.y - 128 - 32 - 64 );
+		Vector2 margins = new( 8, 8 );
+		Vector2 start = new( screenSize.x - 64 - ( 64 + margins.x ) * 3, screenSize.y - 64 - ( 64 + margins.y ) * 3 );
+		Vector2 position = start;
 
-		DrawInputKey( start + new Vector2( 64, 0 ), "W", InputButton.Forward );
-		DrawInputKey( start + new Vector2( 0, 64 ), "A", InputButton.Left );
-		DrawInputKey( start + new Vector2( 64, 64 ), "S", InputButton.Back );
-		DrawInputKey( start + new Vector2( 128, 64 ), "D", InputButton.Right );
+		position += new Vector2( 64, 0 ) + margins.WithY( 0 );
+		DrawInputKey( position, InputButton.Forward );
 
-		DrawInputKey( start + new Vector2( 0, 128 ), "Jump", InputButton.Jump, new Vector2( 192, 64 ) );
+		position += new Vector2( -64, 64 ) + margins.WithX( -margins.x );
+		DrawInputKey( position, InputButton.Left );
+
+		position += new Vector2( 64, 0 ) + margins.WithY( 0 );
+		DrawInputKey( position, InputButton.Back );
+
+		position += new Vector2( 64, 0 ) + margins.WithY( 0 );
+		DrawInputKey( position, InputButton.Right );
+
+		position = start + new Vector2( 0, 128 ) + new Vector2( 0, margins.y * 2 );
+		DrawInputKey( position, InputButton.Jump, new Vector2( 192 + margins.x * 2, 64 ) );
 	}
 
 }
