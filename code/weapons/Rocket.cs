@@ -28,7 +28,7 @@ public class Rocket : ModelEntity
 			if ( tr.Hit || LifeTime > MaxLifetime )
 			{
 				// Explode
-				ArenaGame.Explode( tr.EndPosition, 10f, Owner );
+				ArenaGame.Explode( tr.EndPosition, 40f, Owner );
 				Delete();
 			}
 		}
