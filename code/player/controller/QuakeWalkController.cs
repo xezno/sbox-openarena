@@ -66,6 +66,9 @@ public partial class QuakeWalkController : BasePlayerController
 		{
 			SetGroundEntity( null );
 
+			// HACK: Cancel out Z velocity so that gravity doesn't affect any impulse added
+			Velocity = Velocity.WithZ( 0 );
+
 			Velocity += Impulse;
 			Impulse = Vector3.Zero;
 		}
