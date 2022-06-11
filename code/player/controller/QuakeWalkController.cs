@@ -356,7 +356,7 @@ public class QuakeWalkController : BasePlayerController
 			if ( Velocity.Length.AlmostEqual( 0.0f ) )
 				break;
 
-			var trace = Trace( Position, mins, maxs, Position + Velocity * timeLeft );
+			var trace = TraceBBox( Position, Position + Velocity * timeLeft );
 			travelFraction += trace.Fraction;
 
 			if ( trace.Fraction > 0.03125f )
@@ -400,17 +400,9 @@ public class QuakeWalkController : BasePlayerController
 		return bumpCount != 0;
 	}
 
-	private TraceResult Trace( Vector3 position, Vector3 mins, Vector3 maxs, Vector3 end )
+	public override TraceResult TraceBBox( Vector3 start, Vector3 end, float liftFeet = 0 )
 	{
-		var tr = Sandbox.Trace.Ray( position, end )
-			.Ignore( Pawn )
-			.Size( mins, maxs )
-			.Run();
-
-		var color = Pawn.IsServer ? Color.Red : Color.Blue;
-		DebugOverlay.Box( position, mins, maxs, color );
-
-		return tr;
+		return base.TraceBBox( start, end, mins, maxs, liftFeet );
 	}
 
 	public void StepSlideMove( bool gravity )
@@ -428,7 +420,7 @@ public class QuakeWalkController : BasePlayerController
 
 		down.z -= STEPSIZE;
 
-		var trace = Trace( start_o, mins, maxs, down );
+		var trace = TraceBBox( start_o, down );
 		Vector3 up = new Vector3( 0, 0, 1 );
 
 		// never step up when you still have up velocity
@@ -439,10 +431,9 @@ public class QuakeWalkController : BasePlayerController
 		Vector3 down_v = Velocity;
 
 		up = start_o;
-
 		up.z += STEPSIZE;
 
-		trace = Trace( start_o, mins, maxs, down );
+		trace = TraceBBox( start_o, down );
 		if ( trace.StartedSolid )
 		{
 			Log( $"{c_pmove}: bend can't step" );
@@ -461,7 +452,7 @@ public class QuakeWalkController : BasePlayerController
 		down = Position;
 		down.z -= stepSize;
 
-		trace = Trace( Position, mins, maxs, down );
+		trace = TraceBBox( Position, down );
 
 		if ( !trace.StartedSolid )
 		{
@@ -491,7 +482,7 @@ public class QuakeWalkController : BasePlayerController
 					point.y += j;
 					point.z += k;
 
-					trace = Trace( point, mins, maxs, point );
+					trace = TraceBBox( point, point );
 					DebugOverlay.Line( Position, point );
 
 					if ( !trace.StartedSolid )
@@ -500,7 +491,7 @@ public class QuakeWalkController : BasePlayerController
 						DebugOverlay.Sphere( point, 2f, Color.White );
 
 						point = Position.WithZ( Position.z - 0.25f );
-						trace = Trace( Position, mins, maxs, point );
+						trace = TraceBBox( Position, point );
 						Position = point;
 						pml.groundTrace = trace;
 
@@ -526,7 +517,7 @@ public class QuakeWalkController : BasePlayerController
 
 	public bool Unstuck()
 	{
-		var tr = Trace( Position, mins, maxs, Position );
+		var tr = TraceBBox( Position, Position );
 		if ( !tr.StartedSolid )
 			return true;
 
@@ -544,7 +535,7 @@ public class QuakeWalkController : BasePlayerController
 		TraceResult trace;
 
 		point = new Vector3( Position ).WithZ( Position.z - 0.25f );
-		trace = Trace( Position, mins, maxs, point );
+		trace = TraceBBox( Position, point );
 
 		pml.groundTrace = trace;
 
@@ -613,7 +604,7 @@ public class QuakeWalkController : BasePlayerController
 			point.z -= STEPSIZE;
 		}
 
-		var trace = Trace( vBumpOrigin, mins, maxs, point );
+		var trace = TraceBBox( vBumpOrigin, point );
 
 		if ( trace.Entity == null || Vector3.GetAngle( Vector3.Up, trace.Normal ) > MIN_WALK_NORMAL )
 		{
