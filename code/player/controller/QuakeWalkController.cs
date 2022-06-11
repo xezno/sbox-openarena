@@ -490,13 +490,6 @@ public class QuakeWalkController : BasePlayerController
 		return false;
 	}
 
-	private void GroundTraceMissed()
-	{
-		GroundEntity = null;
-		pml.groundPlane = false;
-		pml.walking = false;
-	}
-
 	public bool Unstuck()
 	{
 		var tr = TraceBBox( Position, Position );
@@ -532,9 +525,7 @@ public class QuakeWalkController : BasePlayerController
 		// if the trace didn't hit anything, we are in free fall
 		if ( trace.Fraction == 1.0f )
 		{
-			GroundTraceMissed();
-			pml.groundPlane = false;
-			pml.walking = false;
+			SetGroundEntity( null );
 		}
 
 		// check if getting thrown off the ground
@@ -542,10 +533,7 @@ public class QuakeWalkController : BasePlayerController
 		{
 			Log( $"{c_pmove}: kickoff" );
 
-			GroundEntity = null;
-			pml.groundPlane = false;
-			pml.walking = false;
-
+			SetGroundEntity( null );
 			return;
 		}
 
@@ -557,15 +545,11 @@ public class QuakeWalkController : BasePlayerController
 			// ID FIXME: if they can't slide down the slope, let them
 			// walk ( sharp crevices )
 
-			GroundEntity = null;
-			pml.groundPlane = true;
-			pml.walking = false;
+			SetGroundEntity( null );
 			return;
 		}
 
-		pml.groundPlane = true;
-		pml.walking = true;
-		GroundEntity = trace.Entity;
+		SetGroundEntity( trace );
 	}
 
 	private void CategorizePosition( bool bStayOnGround )
@@ -590,20 +574,36 @@ public class QuakeWalkController : BasePlayerController
 
 		if ( trace.Entity == null || Vector3.GetAngle( Vector3.Up, trace.Normal ) > MIN_WALK_NORMAL )
 		{
-			GroundTraceMissed();
+			SetGroundEntity( null );
 			bMoveToEndPos = false;
 		}
 		else
 		{
-			GroundEntity = trace.Entity;
-			pml.groundPlane = true;
-			pml.walking = false;
+			SetGroundEntity( trace );
 		}
 
 		if ( bMoveToEndPos && !trace.StartedSolid && trace.Fraction > 0.0f && trace.Fraction < 1.0f )
 		{
 			Position = trace.EndPosition;
 		}
+	}
+
+	private void SetGroundEntity( TraceResult tr ) => SetGroundEntity( tr.Entity );
+
+	private void SetGroundEntity( Entity ent )
+	{
+		if ( ent == null )
+		{
+			pml.groundPlane = false;
+			pml.walking = false;
+		}
+		else
+		{
+			pml.groundPlane = true;
+			pml.walking = true;
+		}
+
+		GroundEntity = ent;
 	}
 
 	int line = 0;
