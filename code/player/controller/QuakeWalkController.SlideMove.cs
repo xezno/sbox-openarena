@@ -5,26 +5,26 @@ partial class QuakeWalkController
 	private bool SlideMove( bool gravity )
 	{
 		int bumpCount;
-		Vector3 primalVelocity = Velocity;
 		Vector3 endVelocity = new();
 
+		// gravity end
 		if ( gravity )
 		{
 			endVelocity = Velocity;
-			endVelocity.z -= Gravity * Time.Delta;
+			endVelocity.z -= Gravity * Time.Delta * 0.5f;
 			Velocity = Velocity.WithZ( ( Velocity.z + endVelocity.z ) * 0.5f );
-			primalVelocity.z = endVelocity.z;
+			LogToScreen( $"SlideMove: {Velocity} -> {endVelocity}" );
 
 			if ( GroundPlane )
 			{
 				// Slide along the ground plane
 				Velocity = ClipVelocity( Velocity, GroundTrace.Normal, Overclip );
+				LogToScreen( $"SlideMove GroundPlane: {endVelocity} -> {Velocity}" );
 			}
 		}
 
 		float timeLeft = Time.Delta;
 		float travelFraction = 0;
-		bool HitWall = false;
 
 		using var moveplanes = new VelocityClipPlanes( Velocity );
 
@@ -36,6 +36,12 @@ partial class QuakeWalkController
 			var trace = TraceBBox( Position, Position + Velocity * timeLeft );
 			travelFraction += trace.Fraction;
 
+			if ( trace.StartedSolid )
+			{
+				Velocity = endVelocity.WithZ( 0 );
+				return true;
+			}
+
 			if ( trace.Fraction > 0.03125f )
 			{
 				Position = trace.EndPosition + trace.Normal * 0.001f;
@@ -46,28 +52,19 @@ partial class QuakeWalkController
 				moveplanes.StartBump( Velocity );
 			}
 
-			if ( bumpCount == 0 && trace.Hit && trace.Normal.Angle( Vector3.Up ) >= MaxWalkAngle )
-			{
-				HitWall = true;
-			}
-
 			timeLeft -= timeLeft * trace.Fraction;
 
 			Vector3 vel = endVelocity;
-			if ( !moveplanes.TryAdd( trace.Normal, ref vel, ( HitWall ) ? 0.0f : 0.0f ) )
+			if ( !moveplanes.TryAdd( trace.Normal, ref vel, 0.0f ) )
 			{
-				LogToScreen( $"MovePlanes: {Velocity} -> {vel}" );
 				endVelocity = vel;
 
 				Velocity = endVelocity;
 				break;
 			}
+			LogToScreen( $"MovePlanes: {Velocity} -> {vel}" );
 			endVelocity = vel;
-			Velocity = endVelocity;
 		}
-
-		if ( travelFraction == 0 )
-			Velocity = 0;
 
 		if ( gravity )
 			Velocity = endVelocity;

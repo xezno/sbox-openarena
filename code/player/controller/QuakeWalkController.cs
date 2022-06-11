@@ -88,21 +88,22 @@ public partial class QuakeWalkController : BasePlayerController
 		// set groundentity
 		TraceToGround();
 
-		bool stayOnGround = false;
-		if ( GroundEntity != null )
+		if ( CheckJump() || GroundEntity == null )
 		{
-			// walking on ground
-			WalkMove();
-			stayOnGround = true;
+			// gravity start
+			Velocity -= new Vector3( 0, 0, Gravity * 0.5f ) * Time.Delta;
+
+			// jumped away or in air
+			AirMove();
 		}
 		else
 		{
-			// in air
-			AirMove();
+			// walking on ground
+			WalkMove();
 		}
 
 		// stick to ground
-		CategorizePosition( stayOnGround );
+		CategorizePosition();
 
 		// set groundentity
 		TraceToGround();
@@ -207,7 +208,11 @@ public partial class QuakeWalkController : BasePlayerController
 		if ( !Input.Down( InputButton.Jump ) )
 			return false;
 
-		Velocity = Velocity.WithZ( JumpVelocity );
+		float jumpVel = JumpVelocity;
+		if ( Duck.IsActive )
+			jumpVel *= 0.75f;
+
+		Velocity = Velocity.WithZ( jumpVel );
 
 		SetGroundEntity( null );
 
@@ -266,13 +271,6 @@ public partial class QuakeWalkController : BasePlayerController
 
 	private void WalkMove()
 	{
-		if ( CheckJump() )
-		{
-			// Jumped away
-			AirMove();
-			return;
-		}
-
 		ApplyFriction();
 
 		Vector3 wishDir = GetWishDirection();
@@ -411,21 +409,16 @@ public partial class QuakeWalkController : BasePlayerController
 		SetGroundEntity( trace );
 	}
 
-	private void CategorizePosition( bool stayOnGround )
+	private void CategorizePosition()
 	{
 		// if the player hull point one unit down is solid, the player is on ground
 		// see if standing on something solid
-		var point = Position - Vector3.Up * 1;
+		var point = Position + Vector3.Down * 1;
 		var bump_o = Position;
 
 		bool moveToEndPos = false;
 
 		if ( GroundEntity != null )
-		{
-			moveToEndPos = true;
-			point.z -= StepSize;
-		}
-		else if ( stayOnGround )
 		{
 			moveToEndPos = true;
 			point.z -= StepSize;
