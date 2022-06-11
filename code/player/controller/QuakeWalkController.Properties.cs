@@ -11,7 +11,7 @@ partial class QuakeWalkController
 	//
 	float StopSpeed => 100.0f;
 	float DuckScale => 0.25f;
-	float GroundDistance => 1;
+	float GroundDistance => 0.25f;
 	float Acceleration => 10.0f;
 	float AirAcceleration => 2.0f;
 	float Friction => 6.0f;

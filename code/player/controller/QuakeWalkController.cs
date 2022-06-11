@@ -295,9 +295,33 @@ public partial class QuakeWalkController : BasePlayerController
 		StepSlideMove( false );
 	}
 
+	public override TraceResult TraceBBox( Vector3 start, Vector3 end, Vector3 mins, Vector3 maxs, float liftFeet = 0.0f )
+	{
+		if ( liftFeet > 0 )
+		{
+			start += Vector3.Up * liftFeet;
+			maxs = maxs.WithZ( maxs.z - liftFeet );
+		}
+
+		var tr = Trace.Ray( start + TraceOffset, end + TraceOffset )
+					.Size( mins, maxs )
+					.HitLayer( CollisionLayer.All, false )
+					.HitLayer( CollisionLayer.Solid, true )
+					.HitLayer( CollisionLayer.GRATE, true )
+					.HitLayer( CollisionLayer.PLAYER_CLIP, true )
+					.HitLayer( CollisionLayer.WINDOW, true )
+					.HitLayer( CollisionLayer.NPC, true )
+					.Ignore( Pawn )
+					.WithoutTags( "player" )
+					.Run();
+
+		tr.EndPosition -= TraceOffset;
+		return tr;
+	}
+
 	public override TraceResult TraceBBox( Vector3 start, Vector3 end, float liftFeet = 0 )
 	{
-		return base.TraceBBox( start, end, mins, maxs, liftFeet );
+		return TraceBBox( start, end, mins, maxs, liftFeet );
 	}
 
 	private bool CorrectAllSolid()
