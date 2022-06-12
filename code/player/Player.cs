@@ -34,8 +34,6 @@ partial class Player
 		WaterLevel = 0;
 
 		CreateHull();
-
-		Game.Current?.MoveToSpawnpoint( this );
 		ResetInterpolation();
 	}
 
@@ -55,14 +53,7 @@ partial class Player
 	public override void Simulate( Client cl )
 	{
 		if ( LifeState == LifeState.Dead )
-		{
-			if ( timeSinceDied > 3 && IsServer )
-			{
-				Respawn();
-			}
-
 			return;
-		}
 
 		Controller?.Simulate( cl, this, Animator );
 		SimulateActiveChild( cl, ActiveChild );

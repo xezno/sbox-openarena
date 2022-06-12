@@ -218,6 +218,11 @@ public class Inventory
 		return List.OfType<T>().Any();
 	}
 
+	public virtual T First<T>() where T : Entity
+	{
+		return List.OfType<T>().First();
+	}
+
 	/// <summary>
 	/// Make this entity the active one
 	/// </summary>

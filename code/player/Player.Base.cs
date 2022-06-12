@@ -18,7 +18,8 @@ public partial class Player : AnimatedEntity
 		set => Components.Add( value );
 	}
 
-	private TimeSince timeSinceDied;
+	public TimeSince TimeSinceDied { get; private set; }
+
 	private TimeSince timeSinceLastFootstep = 0;
 
 	public ModelEntity Corpse { get; set; }
@@ -42,7 +43,7 @@ public partial class Player : AnimatedEntity
 		Game.Current?.OnKilled( this );
 		Client?.AddInt( "deaths", 1 );
 
-		timeSinceDied = 0;
+		TimeSinceDied = 0;
 		LifeState = LifeState.Dead;
 		StopUsing();
 

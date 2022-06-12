@@ -15,10 +15,21 @@ namespace OpenArena;
 
 public partial class ArenaGame : Sandbox.Game
 {
+	[Net] public DeathmatchGamemode Gamemode { get; set; }
+
 	public ArenaGame()
 	{
 		if ( IsServer )
+		{
 			_ = new Hud();
+			Gamemode = new();
+		}
+	}
+
+	public override void Simulate( Client cl )
+	{
+		Gamemode?.Simulate();
+		base.Simulate( cl );
 	}
 
 	public override void ClientJoined( Client client )
@@ -27,7 +38,7 @@ public partial class ArenaGame : Sandbox.Game
 
 		// Create a pawn for this client to play with
 		var pawn = new Player();
-		pawn.Respawn();
+		Gamemode.RespawnPlayer( pawn );
 		client.Pawn = pawn;
 	}
 
@@ -78,9 +89,8 @@ public partial class ArenaGame : Sandbox.Game
 			//
 			// Draw text
 			//
-			var textSize = draw.TextSize( pos, key );
-			var textCenter = ( size ?? default ) / 2.0f
-							 - new Vector2( textSize.width / 2.0f, textSize.height / 2.0f );
+			var textSize = draw.TextSize( pos, key ).Size;
+			var textCenter = ( ( size ?? default ) - textSize ) / 2.0f;
 
 			draw.FontFamily = "Rajdhani";
 			draw.FontWeight = 800;
