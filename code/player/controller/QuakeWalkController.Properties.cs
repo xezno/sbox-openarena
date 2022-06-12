@@ -9,34 +9,58 @@ partial class QuakeWalkController
 	//
 	// Movement parameters
 	//
-	float StopSpeed => 100.0f;
-	float DuckScale => 0.25f;
-	float GroundDistance => 0.25f;
-	float Acceleration => 10.0f;
-	float AirAcceleration => 10.0f;
-	float Friction => 6.0f;
-	float Speed => 320.0f;
-	float AirSpeed => 180.0f;
-	float Gravity => 800f;
-	float MaxWalkAngle => 45f;
-	float StepSize => 18;
-	float JumpVelocity => 270;
-	float Overclip => 1.001f;
+	[ConVar.Replicated( "oa_stopspeed" )]
+	public static float StopSpeed { get; set; } = 100.0f;
 
-	enum JumpModes
+	[ConVar.Replicated( "oa_grounddistance" )]
+	public static float GroundDistance { get; set; } = 0.25f;
+
+	[ConVar.Replicated( "oa_acceleration" )]
+	public static float Acceleration { get; set; } = 10.0f;
+
+	[ConVar.Replicated( "oa_airacceleration" )]
+	public static float AirAcceleration { get; set; } = 10.0f;
+
+	[ConVar.Replicated( "oa_friction" )]
+	public static float Friction { get; set; } = 6.0f;
+
+	[ConVar.Replicated( "oa_speed" )]
+	public static float Speed { get; set; } = 320.0f;
+
+	[ConVar.Replicated( "oa_airspeed" )]
+	public static float AirSpeed { get; set; } = 180.0f;
+
+	[ConVar.Replicated( "oa_gravity" )]
+	public static float Gravity { get; set; } = 800f;
+
+	[ConVar.Replicated( "oa_maxwalkangle" )]
+	public static float MaxWalkAngle { get; set; } = 45f;
+
+	[ConVar.Replicated( "oa_stepsize" )]
+	public static float StepSize { get; set; } = 18;
+
+	[ConVar.Replicated( "oa_jumpvelocity" )]
+	public static float JumpVelocity { get; set; } = 270;
+
+	[ConVar.Replicated( "oa_overclip" )]
+	public static float Overclip { get; set; } = 1.001f;
+
+	public enum JumpModes
 	{
 		AutoBhop,
 		QueueJump,
 		Vanilla
 	}
 
-	JumpModes JumpMode => JumpModes.AutoBhop;
+	[ConVar.Replicated( "oa_jumpmode" )]
+	public static JumpModes JumpMode { get; set; } = JumpModes.AutoBhop;
 
-	enum AccelModes
+	public enum AccelModes
 	{
 		Quake2,
 		NoStrafeJump
 	}
 
-	AccelModes AccelMode => AccelModes.Quake2;
+	[ConVar.Replicated( "oa_accelmode" )]
+	public static AccelModes AccelMode { get; set; } = AccelModes.Quake2;
 }
