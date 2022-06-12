@@ -1,63 +1,34 @@
 ﻿namespace OpenArena;
 
 [Library( "oa_gamemode_deathmatch" )]
-public partial class DeathmatchGamemode : BaseNetworkable
+public partial class DeathmatchGamemode : BaseGamemode
 {
-	protected List<Player> Players => Entity.All.OfType<Player>().ToList();
+	/*
+	 * TODO:
+	 * - Scoring:
+	 *   - Not team based
+	 *   - First to 25 frags
+	 * - HUD:
+	 *   - If not match leader:
+	 *     - Displays match leader 
+	 *     - Displays you
+	 *   - If match leader:
+	 *     - Displays you
+	 *     - Displays person below you in frags
+	 * - Timer:
+	 *     - Max 5 mins
+	 *     - Person with most frags at end of timer wins
+	 */
 
-	// - Inventory:
-	//   - Default weapon: pistol
-	private void SetInventory( Player player )
+	public DeathmatchGamemode()
 	{
-		player.Inventory.DeleteContents();
-		player.Inventory.Add( new Pistol(), true );
+		TimeSinceGameStart = 0;
 	}
-
-	public void RespawnPlayer( Player player )
-	{
-		Log.Trace( $"DeathmatchGamemode: Respawning {player}" );
-
-		player.Respawn();
-		SetInventory( player );
-		MoveToSpawnpoint( player );
-	}
-
-	private void MoveToSpawnpoint( Entity pawn )
-	{
-		var spawnpoint = Entity.All
-								.OfType<SpawnPoint>()               // get all SpawnPoint entities
-								.OrderBy( x => Guid.NewGuid() )     // order them by random
-								.FirstOrDefault();                  // take the first one
-
-		if ( spawnpoint == null )
-		{
-			Log.Warning( $"Couldn't find spawnpoint for {pawn}!" );
-			return;
-		}
-
-		pawn.Transform = spawnpoint.Transform;
-	}
-
-	// - Scoring:
-	//   - Not team based
-	//   - First to 25 frags
-
-	// - HUD:
-	//   - If not match leader:
-	//     - Displays match leader 
-	//     - Displays you
-	//   - If match leader:
-	//     - Displays you
-	//     - Displays person below you in frags
-
-	// - Timer:
-	//     - Max 5 mins
-	//     - Person with most frags at end of timer wins
 
 	// - Respawning:
 	//     - 3 second respawn delay
 	//     - 3 second invulnerability
-	public void Simulate()
+	protected override void CheckRespawning()
 	{
 		foreach ( var player in Players )
 		{
@@ -69,5 +40,13 @@ public partial class DeathmatchGamemode : BaseNetworkable
 				}
 			}
 		}
+	}
+
+	// - Inventory:
+	//   - Default weapon: pistol
+	protected override void SetInventory( Player player )
+	{
+		player.Inventory.DeleteContents();
+		player.Inventory.Add( new Pistol(), true );
 	}
 }

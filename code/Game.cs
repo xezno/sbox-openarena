@@ -15,15 +15,26 @@ namespace OpenArena;
 
 public partial class ArenaGame : Sandbox.Game
 {
-	[Net] public DeathmatchGamemode Gamemode { get; set; }
+	[Net] public BaseGamemode Gamemode { get; set; }
 
 	public ArenaGame()
 	{
 		if ( IsServer )
 		{
 			_ = new Hud();
-			Gamemode = new();
+			Gamemode = new DeathmatchGamemode();
 		}
+	}
+
+	[ConCmd.Admin( "oa_set_gamemode" )]
+	public static void SetGamemode( string gamemodeLibraryName )
+	{
+		var game = Current as ArenaGame;
+		if ( game == null )
+			return;
+
+		game.Gamemode = TypeLibrary.Create<BaseGamemode>( gamemodeLibraryName );
+		Log.Trace( $"Setting gamemode to {game.Gamemode}" );
 	}
 
 	public override void Simulate( Client cl )
