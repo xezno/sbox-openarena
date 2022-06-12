@@ -21,14 +21,7 @@ _bakeresourcecache/
 *_bakeresourcecache.vpk
 
 # Compiled files
-*.vanmgrph_c
-*.vmat_c
-*.vmdl_c
-*.vsnd_c
-*.vtex_c
-*.zip
-*.vpcf_c
-*.vpost_c
+*.*_c
 
 # Allowlist
 !*_dev.vpk
