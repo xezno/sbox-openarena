@@ -13,7 +13,7 @@
 		CrosshairLibraryName = "oa_crosshair_dot"
 		WorldModel = resource:"weapons/rust_shotgun/rust_shotgun.vmdl"
 		ViewModel = resource:"weapons/rust_shotgun/v_rust_shotgun.vmdl"
-		FireSound = resource:"weapons/rust_pistol/sound/rust_pistol.shoot.sound"
+		FireSound = resource:"weapons/rust_crossbow/sounds/rust_crossbow.shoot.sound"
 		MuzzleFlashParticles = resource:"particles/pistol_muzzleflash.vpcf"
 		TracerParticles = resource:"particles/beam.vpcf"
 	}
