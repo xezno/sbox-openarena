@@ -1,7 +1,7 @@
 {
   "Title": "OpenArena",
   "Type": "game",
-  "Org": "local",
+  "Org": "alex",
   "Ident": "openarena",
   "Schema": 1,
   "HasAssets": true,
@@ -12,12 +12,12 @@
   "RootNamespace": "OpenArena",
   "Metadata": {
     "MapList": [
-      "facepunch.construct"
+      "local.gump2"
     ],
     "PerMapRanking": false,
-    "LeaderboardType": 0,
-    "RankType": 0,
-    "MapSelect": 0,
+    "LeaderboardType": 2,
+    "RankType": 3,
+    "MapSelect": 2,
     "GameNetworkType": 0,
     "MaxPlayers": 12,
     "MinPlayers": 0
