@@ -4,18 +4,19 @@
 	{
 		UIName = "Weapon"
 		UIDescription = "My Cool Weapon"
-		InventorySlot = 2
-		LibraryName = "oa_weapon_pistol"
-		CrosshairLibraryName = "oa_crosshair_cross"
+		InventorySlot = 3
+		LibraryName = "oa_weapon_shotgun"
+		CrosshairLibraryName = "oa_crosshair_circle"
 		AutoFire = false
-		Damage = 10
-		FireRate = 5
+		Damage = 8
+		FireRate = 1
 		DeployTime = 1
 		Spread = 0.1
 		SpreadRandomness = 0.1
-		WorldModel = resource:"weapons/rust_pistol/rust_pistol.vmdl"
-		ViewModel = resource:"weapons/rust_pistol/v_rust_pistol.vmdl"
-		FireSound = resource:"weapons/rust_pistol/sound/rust_pistol.shoot.sound"
+		ShotCount = "3,3"
+		WorldModel = resource:"weapons/rust_pumpshotgun/rust_pumpshotgun.vmdl"
+		ViewModel = resource:"weapons/rust_pumpshotgun/v_rust_pumpshotgun.vmdl"
+		FireSound = resource:"weapons/rust_pumpshotgun/sounds/rust_pumpshotgun.shoot.sound"
 		MuzzleFlashParticles = resource:"particles/pistol_muzzleflash.vpcf"
 		TracerParticles = resource:"particles/tracer.vpcf"
 	}

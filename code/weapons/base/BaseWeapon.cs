@@ -96,7 +96,7 @@ public partial class BaseWeapon : BaseCarriable
 		if ( TimeSinceDeployed < WeaponData.DeployTime ) return false;
 		if ( !Owner.IsValid() || !isFiring ) return false;
 
-		var rate = WeaponData.Rate;
+		var rate = WeaponData.FireRate;
 		if ( rate <= 0 ) return true;
 
 		return TimeSinceAttack > ( 1 / rate );

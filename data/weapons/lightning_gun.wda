@@ -2,15 +2,17 @@
 {
 	data = 
 	{
+		UIName = "Weapon"
+		UIDescription = "My Cool Weapon"
+		InventorySlot = 6
 		LibraryName = "oa_weapon_lightning_gun"
-		Name = "Lightning Gun"
-		Description = "My Cool Weapon"
-		Damage = 15
-		AutoFire = true
-		Rate = 10
-		Slot = 6
-		DeployTime = 1
 		CrosshairLibraryName = "oa_crosshair_triangle"
+		AutoFire = true
+		Damage = 15
+		FireRate = 5
+		DeployTime = 1
+		Spread = 0.1
+		SpreadRandomness = 0.1
 		WorldModel = resource:"weapons/rust_smg/rust_smg.vmdl"
 		ViewModel = resource:"weapons/rust_smg/v_rust_smg.vmdl"
 		FireSound = resource:"weapons/rust_pistol/sound/rust_pistol.shoot.sound"

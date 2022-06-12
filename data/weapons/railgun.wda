@@ -2,15 +2,17 @@
 {
 	data = 
 	{
+		UIName = "Weapon"
+		UIDescription = "My Cool Weapon"
+		InventorySlot = 6
 		LibraryName = "oa_weapon_railgun"
-		Name = "Railgun"
-		Description = "My Cool Weapon"
-		Damage = 75
-		AutoFire = false
-		Rate = 1
-		Slot = 5
-		DeployTime = 1
 		CrosshairLibraryName = "oa_crosshair_dot"
+		AutoFire = false
+		Damage = 75
+		FireRate = 5
+		DeployTime = 1
+		Spread = 0.1
+		SpreadRandomness = 0.1
 		WorldModel = resource:"weapons/rust_shotgun/rust_shotgun.vmdl"
 		ViewModel = resource:"weapons/rust_shotgun/v_rust_shotgun.vmdl"
 		FireSound = resource:"weapons/rust_crossbow/sounds/rust_crossbow.shoot.sound"

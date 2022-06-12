@@ -23,11 +23,13 @@ partial class Player
 
 		if ( pawn is Player player )
 		{
+			player.Inventory.DeleteContents();
 			player.Inventory.Add( new Pistol() );
 			player.Inventory.Add( new SMG() );
 			player.Inventory.Add( new RocketLauncher() );
 			player.Inventory.Add( new LightningGun() );
-			player.Inventory.Add( new Railgun(), true );
+			player.Inventory.Add( new Railgun() );
+			player.Inventory.Add( new Shotgun(), true );
 		}
 	}
 }

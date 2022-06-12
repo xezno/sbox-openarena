@@ -2,14 +2,17 @@
 {
 	data = 
 	{
+		UIName = "Weapon"
+		UIDescription = "My Cool Weapon"
+		InventorySlot = 4
 		LibraryName = "oa_weapon_smg"
-		Name = "SMG"
-		Description = "My Cool Weapon"
-		Damage = 12
+		CrosshairLibraryName = "oa_crosshair_cross"
 		AutoFire = true
-		Rate = 10
-		Slot = 4
+		Damage = 12
+		FireRate = 5
 		DeployTime = 1
+		Spread = 0.1
+		SpreadRandomness = 0.1
 		WorldModel = resource:"weapons/rust_smg/rust_smg.vmdl"
 		ViewModel = resource:"weapons/rust_smg/v_rust_smg.vmdl"
 		FireSound = resource:"weapons/rust_smg/sounds/rust_smg.shoot.sound"

@@ -4,66 +4,83 @@
 	Icon = "🔫", IconBgColor = "#71dcfe" )]
 public class WeaponDataAsset : GameResource
 {
+	#region Meta
+	/// <summary>
+	/// A nice, UI-friendly name for this weapon.
+	/// </summary>
+	[Category( "Meta" ), Title( "UI Name" )]
+	public string UIName { get; set; } = "Weapon";
+
+	/// <summary>
+	/// A nice, UI-friendly, short (<255 character) description for this weapon.
+	/// </summary>
+	[Category( "Meta" ), Title( "UI Description" )]
+	public string UIDescription { get; set; } = "My Cool Weapon";
+
+	/// <summary>
+	/// Which slot of the player's inventory should this go in?
+	/// </summary>
+	[Category( "Meta" )]
+	public WeaponSlot InventorySlot { get; set; } = WeaponSlot.Melee;
+
 	/// <summary>
 	/// We use this because most weapons are going to be functionally different from
 	/// each other. Specific functionality will get defined in a class with a Library
 	/// attribute and we use the name of that attribute to give this weapon its unique
 	/// function.
 	/// </summary>
+	[Category( "Meta" )]
 	public string LibraryName { get; set; } = "oa_weapon";
-
-	/// <summary>
-	/// A nice, UI-friendly name for this weapon.
-	/// </summary>
-	public string Name { get; set; } = "Weapon";
-
-	/// <summary>
-	/// A nice, UI-friendly, short (<255 character) description for this weapon.
-	/// </summary>
-	public string Description { get; set; } = "My Cool Weapon";
-
-	/// <summary>
-	/// How much damage this weapon should do to entities
-	/// </summary>
-	public float Damage { get; set; } = 10f;
-
-	/// <summary>
-	/// Should the player be able to hold down fire to shoot continuously?
-	/// </summary>
-	public bool AutoFire { get; set; } = true;
-
-	/// <summary>
-	/// How often should this weapon be ready to fire (per second)
-	/// </summary>
-	public float Rate { get; set; } = 5f;
-
-	/// <summary>
-	/// Which slot of the player's inventory should this go in?
-	/// </summary>
-	public WeaponSlot Slot { get; set; } = WeaponSlot.Melee;
-
-	/// <summary>
-	/// How long does this weapon take to deploy before it can be used?
-	/// </summary>
-	public float DeployTime { get; internal set; } = 1.0f;
 
 	/// <summary>
 	/// Which crosshair should we use? (prefixed with oa_crosshair_)
 	/// </summary>
+	[Category( "Meta" )]
 	public string CrosshairLibraryName { get; set; } = "oa_crosshair_cross";
+	#endregion
 
-	[ResourceType( "model" )]
+	#region Combat
+	[Category( "Combat" )]
+	public bool AutoFire { get; set; } = true;
+
+	[Category( "Combat" )]
+	public float Damage { get; set; } = 10f;
+
+	[Category( "Combat" )]
+	public float FireRate { get; set; } = 5f;
+
+	[Category( "Combat" )]
+	public float DeployTime { get; internal set; } = 1.0f;
+	#endregion
+
+	#region Weapon-specific
+	//
+	// Shotgun
+	//
+	[Category( "Weapon-Specific" ), ShowIf( "InventorySlot", WeaponSlot.Shotgun )]
+	public float Spread { get; set; } = 0.1f;
+
+	[Category( "Weapon-Specific" ), ShowIf( "InventorySlot", WeaponSlot.Shotgun )]
+	public float SpreadRandomness { get; set; } = 0.1f;
+
+	[Category( "Weapon-Specific" ), ShowIf( "InventorySlot", WeaponSlot.Shotgun )]
+	public Vector2 ShotCount { get; set; } = new( 3, 3 );
+	#endregion
+
+	#region Visuals
+	[Category( "Visuals" ), ResourceType( "model" )]
 	public string WorldModel { get; set; } = "";
 
-	[ResourceType( "model" )]
+	[Category( "Visuals" ), ResourceType( "model" )]
 	public string ViewModel { get; set; } = "";
 
-	[ResourceType( "sound" )]
+	[Category( "Visuals" ), ResourceType( "sound" )]
 	public string FireSound { get; set; } = "rust_pistol.shoot.sound";
 
-	[ResourceType( "vpcf" )]
+	[Category( "Visuals" ), ResourceType( "vpcf" )]
 	public string MuzzleFlashParticles { get; set; } = "particles/pistol_muzzleflash.vpcf";
 
-	[ResourceType( "vpcf" )]
+	[Category( "Visuals" ), ResourceType( "vpcf" )]
 	public string TracerParticles { get; set; } = "particles/tracer.vpcf";
+	#endregion
 }

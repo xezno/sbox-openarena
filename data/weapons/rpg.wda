@@ -2,15 +2,17 @@
 {
 	data = 
 	{
+		UIName = "Weapon"
+		UIDescription = "My Cool Weapon"
+		InventorySlot = 7
 		LibraryName = "oa_weapon_rpg"
-		Name = "Rocket Launcher"
-		Description = "My Cool Weapon"
-		Damage = 50
-		AutoFire = false
-		Rate = 5
-		Slot = 7
-		DeployTime = 1
 		CrosshairLibraryName = "oa_crosshair_circle"
+		AutoFire = false
+		Damage = 50
+		FireRate = 5
+		DeployTime = 1
+		Spread = 0.1
+		SpreadRandomness = 0.1
 		WorldModel = resource:"weapons/rust_smg/rust_smg.vmdl"
 		ViewModel = resource:"weapons/rust_smg/v_rust_smg.vmdl"
 		FireSound = resource:"weapons/rust_pistol/sound/rust_pistol.shoot.sound"
