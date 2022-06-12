@@ -197,24 +197,43 @@ public partial class QuakeWalkController : BasePlayerController
 
 	private void Accelerate( Vector3 wishDir, float wishSpeed, float accel )
 	{
-		float addspeed, accelspeed, currentspeed;
-
-		currentspeed = Velocity.Dot( wishDir );
-		addspeed = wishSpeed - currentspeed;
-
-		if ( addspeed <= 0 )
+		switch ( AccelMode )
 		{
-			return;
+			case AccelModes.Quake2:
+				// Quake 2 style, allows for strafe jumps
+				{
+					float currentspeed = Velocity.Dot( wishDir );
+					float addspeed = wishSpeed - currentspeed;
+
+					if ( addspeed <= 0 )
+						return;
+
+					float accelspeed = accel * Time.Delta * wishSpeed;
+					accelspeed = MathF.Min( accelspeed, addspeed );
+
+					Velocity += accelspeed * wishDir;
+				}
+				break;
+			case AccelModes.NoStrafeJump:
+				// Avoids strafe jump maxspeed bug, but feels bad
+				{
+					// TODO: This does not preserve impulse velocity and so
+					// anything that uses that will break while using this accel mode
+					Vector3 wishVelocity = wishDir * wishSpeed;
+
+					// We do not want to cancel out gravity, so we strip
+					// the Z component here
+					Vector3 pushDir = wishVelocity - Velocity.WithZ( 0 );
+
+					float pushLen = pushDir.Length;
+					float canPush = accel * Time.Delta * wishSpeed;
+
+					canPush = MathF.Min( canPush, pushLen );
+
+					Velocity += canPush * pushDir.Normal;
+				}
+				break;
 		}
-
-		accelspeed = accel * Time.Delta * wishSpeed;
-
-		if ( accelspeed > addspeed )
-		{
-			accelspeed = addspeed;
-		}
-
-		Velocity += accelspeed * wishDir;
 	}
 
 	private bool CheckJump()

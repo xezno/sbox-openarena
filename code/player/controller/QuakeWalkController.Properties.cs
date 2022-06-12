@@ -13,7 +13,7 @@ partial class QuakeWalkController
 	float DuckScale => 0.25f;
 	float GroundDistance => 0.25f;
 	float Acceleration => 10.0f;
-	float AirAcceleration => 2.0f;
+	float AirAcceleration => 10.0f;
 	float Friction => 6.0f;
 	float Speed => 320.0f;
 	float AirSpeed => 180.0f;
@@ -31,4 +31,12 @@ partial class QuakeWalkController
 	}
 
 	JumpModes JumpMode => JumpModes.AutoBhop;
+
+	enum AccelModes
+	{
+		Quake2,
+		NoStrafeJump
+	}
+
+	AccelModes AccelMode => AccelModes.Quake2;
 }
