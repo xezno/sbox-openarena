@@ -2,7 +2,7 @@
 
 [Title( "Weapon Spawner" ), Icon( "add" ), Category( "World" )]
 [EditorModel( "models/world/weapon_spawn.vmdl" )]
-[Library( "oa_weapon_spawner" )]
+[Library( "oa_info_weapon_spawn" )]
 [HammerEntity]
 public class WeaponSpawner : ModelEntity
 {
@@ -10,6 +10,9 @@ public class WeaponSpawner : ModelEntity
 	private TimeUntil timeUntilReady = 0;
 
 	private float CooldownPeriod => 5f;
+
+	[Property]
+	public string WeaponLibraryName { get; set; } = "oa_weapon_smg";
 
 	public override void Spawn()
 	{
@@ -48,8 +51,14 @@ public class WeaponSpawner : ModelEntity
 
 	private void GivePlayerWeapon( Player player )
 	{
-		if ( player.Inventory.ContainsAny<SMG>() ) // TODO: Collect ammo?
+		if ( !IsServer )
 			return;
+
+		if ( player.Inventory.ContainsAny<SMG>() )
+		{
+			player.Inventory.First<SMG>().Ammo.Count += 100;
+			return;
+		}
 
 		player.Inventory.Add( new SMG(), true );
 	}
