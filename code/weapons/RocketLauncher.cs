@@ -21,5 +21,11 @@ public class RocketLauncher : BaseWeapon
 		}
 
 		ViewModelEntity?.SetAnimParameter( "fire", true );
+
+		using ( Prediction.Off() )
+		{
+			var fireSound = Path.GetFileNameWithoutExtension( WeaponData.FireSound );
+			PlaySound( fireSound );
+		}
 	}
 }

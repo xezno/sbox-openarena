@@ -66,6 +66,12 @@ public class LightningGun : BaseWeapon
 					.FromBullet( tr.EndPosition, tr.Direction * 32, WeaponData.Damage )
 					.WithAttacker( Owner ) );
 			}
+
+			using ( Prediction.Off() )
+			{
+				var fireSound = Path.GetFileNameWithoutExtension( WeaponData.FireSound );
+				PlaySound( fireSound );
+			}
 		}
 	}
 

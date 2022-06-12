@@ -132,9 +132,12 @@ public partial class BaseWeapon : BaseCarriable
 		//
 		// Shoot effects
 		//
-		// using ( Prediction.Off() )
+		CreateShootEffects( tr.Direction, tr.EndPosition );
+
+		using ( Prediction.Off() )
 		{
-			CreateShootEffects( tr.Direction, tr.EndPosition );
+			var fireSound = Path.GetFileNameWithoutExtension( WeaponData.FireSound );
+			PlaySound( fireSound );
 		}
 	}
 
@@ -159,7 +162,6 @@ public partial class BaseWeapon : BaseCarriable
 		_ = Particles.Create( WeaponData.MuzzleFlashParticles, effectEntity, "muzzle" );
 
 		ViewModelEntity?.SetAnimParameter( "fire", true );
-		PlaySound( WeaponData.FireSound );
 	}
 
 	public virtual TraceResult TraceBullet()
