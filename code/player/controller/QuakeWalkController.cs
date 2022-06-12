@@ -195,13 +195,17 @@ public partial class QuakeWalkController : BasePlayerController
 		Velocity *= newspeed;
 	}
 
-	private void Accelerate( Vector3 wishDir, float wishSpeed, float accel )
+	private void Accelerate( Vector3 wishDir, float wishSpeed, float maxSpeed, float accel )
 	{
+		if ( maxSpeed > 0 && wishSpeed > maxSpeed )
+			wishSpeed = maxSpeed;
+
 		switch ( AccelMode )
 		{
 			case AccelModes.Quake2:
 				// Quake 2 style, allows for strafe jumps
 				{
+
 					float currentspeed = Velocity.Dot( wishDir );
 					float addspeed = wishSpeed - currentspeed;
 
@@ -282,7 +286,7 @@ public partial class QuakeWalkController : BasePlayerController
 		Vector3 wishDir = GetWishDirection();
 		float wishSpeed = GetWishSpeed();
 
-		Accelerate( wishDir, wishSpeed, AirAcceleration );
+		Accelerate( wishDir, wishSpeed, AirControl, AirAcceleration );
 
 		if ( GroundPlane )
 		{
@@ -332,7 +336,7 @@ public partial class QuakeWalkController : BasePlayerController
 		Vector3 wishDir = GetWishDirection();
 		float wishSpeed = GetWishSpeed();
 
-		Accelerate( wishDir, wishSpeed, Acceleration );
+		Accelerate( wishDir, wishSpeed, 0, Acceleration );
 
 		// Slide along the ground plane
 		float vel = Velocity.Length;

@@ -30,6 +30,9 @@ partial class QuakeWalkController
 	[ConVar.Replicated( "oa_airspeed" )]
 	public static float AirSpeed { get; set; } = 180.0f;
 
+	[ConVar.Replicated( "oa_aircontrol" )]
+	public static float AirControl { get; set; } = 50.0f;
+
 	[ConVar.Replicated( "oa_gravity" )]
 	public static float Gravity { get; set; } = 800f;
 
