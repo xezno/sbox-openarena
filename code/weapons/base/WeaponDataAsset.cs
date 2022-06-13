@@ -4,6 +4,7 @@
 	Icon = "🔫", IconBgColor = "#71dcfe" )]
 public class WeaponDataAsset : GameResource
 {
+
 	#region Meta
 	/// <summary>
 	/// A nice, UI-friendly name for this weapon.
@@ -51,6 +52,12 @@ public class WeaponDataAsset : GameResource
 
 	[Category( "Combat" )]
 	public float DeployTime { get; internal set; } = 1.0f;
+
+	[HideInEditor]
+	private int STK => ( 100f / Damage ).CeilToInt();
+
+	[Category( "Combat" ), Title( "Calculated TTK" ), Editable( false )]
+	public string TTK => $"{( ( STK / FireRate ) * 1000 ).CeilToInt()}ms (+ {DeployTime * 1000}ms deploy time)";
 	#endregion
 
 	#region Weapon-specific
