@@ -55,6 +55,8 @@ partial class Player
 		if ( LifeState == LifeState.Dead )
 			return;
 
+		Corpse?.Delete();
+
 		Controller?.Simulate( cl, this, Animator );
 		SimulateActiveChild( cl, ActiveChild );
 		TickPlayerUse();
@@ -119,6 +121,26 @@ partial class Player
 				RpcOnKill( To.Single( info.Attacker ), this.NetworkIdent );
 
 				info.Attacker.Client.AddInt( "kills" );
+			}
+
+			bool shouldGib = Rand.Int( 0, 10 ) == 0;
+
+			if ( info.Flags.HasFlag( DamageFlags.AlwaysGib ) )
+				shouldGib = true;
+
+			if ( info.Flags.HasFlag( DamageFlags.DoNotGib ) )
+				shouldGib = false;
+
+			if ( shouldGib )
+			{
+				if ( info.Position == Vector3.Zero )
+					info.Position = Position + new Vector3( 0, 0, 32 );
+
+				BecomeGibsOnClient( To.Everyone, info.Position );
+			}
+			else
+			{
+				BecomeRagdollOnClient( To.Everyone );
 			}
 		}
 		else

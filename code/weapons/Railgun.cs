@@ -29,6 +29,8 @@ public class Railgun : BaseWeapon
 		if ( tr.IsHeadshot() )
 			damageInfo.Damage *= 2.0f;
 
+		damageInfo.Flags |= DamageFlags.AlwaysGib;
+
 		return damageInfo;
 	}
 }

@@ -54,7 +54,6 @@ public partial class Player : AnimatedEntity
 		CameraMode = new SpectateRagdollCamera();
 		EnableDrawing = false;
 		EnableAllCollisions = false;
-		BecomeRagdollOnClient( To.Everyone );
 	}
 
 	public virtual void CreateHull()

@@ -44,7 +44,7 @@ partial class ArenaGame
 			if ( tr.Hit && tr.Entity != ent )
 				continue;
 
-			ent.TakeDamage( DamageInfo.Generic( damage ).WithAttacker( owner ) );
+			ent.TakeDamage( DamageInfo.Generic( damage ).WithAttacker( owner ).WithFlag( DamageFlags.AlwaysGib ) );
 			ent.ApplyAbsoluteImpulse( dir * force );
 		}
 
