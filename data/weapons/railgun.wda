@@ -13,9 +13,10 @@
 		DeployTime = 1
 		Spread = 0.1
 		SpreadRandomness = 0.1
+		ShotCount = "3,3"
 		WorldModel = resource:"weapons/rust_shotgun/rust_shotgun.vmdl"
 		ViewModel = resource:"weapons/rust_shotgun/v_rust_shotgun.vmdl"
-		FireSound = resource:"weapons/rust_crossbow/sounds/rust_crossbow.shoot.sound"
+		FireSound = resource:"sounds/weapons/railgun_shoot.sound"
 		MuzzleFlashParticles = resource:"particles/pistol_muzzleflash.vpcf"
 		TracerParticles = resource:"particles/beam.vpcf"
 	}
