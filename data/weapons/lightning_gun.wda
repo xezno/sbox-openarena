@@ -8,11 +8,13 @@
 		LibraryName = "oa_weapon_lightning_gun"
 		CrosshairLibraryName = "oa_crosshair_triangle"
 		AutoFire = true
-		Damage = 15
+		Damage = 10
 		FireRate = 5
 		DeployTime = 1
+		TTK = "2000ms"
 		Spread = 0.1
 		SpreadRandomness = 0.1
+		ShotCount = "3,3"
 		WorldModel = resource:"weapons/rust_smg/rust_smg.vmdl"
 		ViewModel = resource:"weapons/rust_smg/v_rust_smg.vmdl"
 		FireSound = resource:"weapons/rust_pistol/sound/rust_pistol.shoot.sound"

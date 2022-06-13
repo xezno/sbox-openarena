@@ -8,11 +8,13 @@
 		LibraryName = "oa_weapon_pistol"
 		CrosshairLibraryName = "oa_crosshair_cross"
 		AutoFire = false
-		Damage = 10
+		Damage = 20
 		FireRate = 5
 		DeployTime = 1
+		TTK = "1000ms (+ 1000ms deploy time)"
 		Spread = 0.1
 		SpreadRandomness = 0.1
+		ShotCount = "3,3"
 		WorldModel = resource:"weapons/rust_pistol/rust_pistol.vmdl"
 		ViewModel = resource:"weapons/rust_pistol/v_rust_pistol.vmdl"
 		FireSound = resource:"weapons/rust_pistol/sound/rust_pistol.shoot.sound"
