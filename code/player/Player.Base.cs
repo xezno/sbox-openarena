@@ -18,11 +18,15 @@ public partial class Player : AnimatedEntity
 		set => Components.Add( value );
 	}
 
-	public TimeSince TimeSinceDied { get; private set; }
+	public ModelEntity Corpse { get; set; }
 
+	public TimeSince TimeSinceDied { get; private set; }
 	private TimeSince timeSinceLastFootstep = 0;
 
-	public ModelEntity Corpse { get; set; }
+	public Player()
+	{
+		Inventory = new Inventory( this );
+	}
 
 	public override void Spawn()
 	{
@@ -33,9 +37,26 @@ public partial class Player : AnimatedEntity
 		base.Spawn();
 	}
 
-	public Player()
+	public void Respawn()
 	{
-		Inventory = new Inventory( this );
+		SetModel( "models/citizen/citizen.vmdl" );
+
+		EnableDrawing = true;
+		EnableHideInFirstPerson = true;
+		EnableShadowInFirstPerson = true;
+		EnableAllCollisions = true;
+
+		Controller = new QuakeWalkController();
+		Animator = new StandardPlayerAnimator();
+		CameraMode = new FirstPersonCamera();
+
+		LifeState = LifeState.Alive;
+		Health = 100;
+		Velocity = Vector3.Zero;
+		WaterLevel = 0;
+
+		CreateHull();
+		ResetInterpolation();
 	}
 
 	public override void OnKilled()
@@ -68,6 +89,12 @@ public partial class Player : AnimatedEntity
 
 	public override void BuildInput( InputBuilder input )
 	{
+		if ( !CanMove() )
+		{
+			input.Clear();
+			input.StopProcessing = true;
+		}
+
 		if ( input.StopProcessing )
 			return;
 

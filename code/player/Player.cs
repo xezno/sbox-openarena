@@ -4,7 +4,6 @@ partial class Player
 {
 	[Net] private bool IsInvincible { get; set; }
 	[ConVar.Replicated( "oa_debug_player" )] public static bool Debug { get; set; }
-
 	private Announcer Announcer { get; set; }
 
 	public override void ClientSpawn()
@@ -13,28 +12,6 @@ partial class Player
 
 		if ( IsLocalPawn )
 			Announcer = new();
-	}
-
-	public void Respawn()
-	{
-		SetModel( "models/citizen/citizen.vmdl" );
-
-		EnableDrawing = true;
-		EnableHideInFirstPerson = true;
-		EnableShadowInFirstPerson = true;
-		EnableAllCollisions = true;
-
-		Controller = new QuakeWalkController();
-		Animator = new StandardPlayerAnimator();
-		CameraMode = new FirstPersonCamera();
-
-		LifeState = LifeState.Alive;
-		Health = 100;
-		Velocity = Vector3.Zero;
-		WaterLevel = 0;
-
-		CreateHull();
-		ResetInterpolation();
 	}
 
 	private void TickInventorySlot()
@@ -153,7 +130,11 @@ partial class Player
 		{
 			RpcDamageDealt( To.Single( info.Attacker ), LifeState == LifeState.Dead, info.Damage, NetworkIdent );
 		}
+	}
 
+	public bool CanMove()
+	{
+		return true;
 	}
 
 	[ClientRpc]
