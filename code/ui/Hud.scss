@@ -37,3 +37,10 @@ text.small, label.small {
     right: $safe-area-x;
     bottom: $safe-area-y;
 }
+
+chatbox {
+    text, label {
+        font-family: Roboto;
+        font-weight: 600;
+    }
+}
