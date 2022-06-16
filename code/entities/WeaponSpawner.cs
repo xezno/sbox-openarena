@@ -74,6 +74,8 @@ public partial class WeaponSpawner : ModelEntity
 		if ( !IsServer )
 			return;
 
+		PlayDeploySound( To.Single( player ) );
+
 		if ( player.Inventory.ContainsAny( WeaponLibraryName ) )
 		{
 			player.Inventory.First( WeaponLibraryName ).Ammo.Count += 100;
@@ -82,6 +84,12 @@ public partial class WeaponSpawner : ModelEntity
 
 		var weapon = TypeLibrary.Create<BaseWeapon>( WeaponLibraryName );
 		player.Inventory.Add( weapon, true );
+	}
+
+	[ClientRpc]
+	public void PlayDeploySound()
+	{
+		Sound.FromScreen( "deploy" );
 	}
 
 	public override void StartTouch( Entity other )
