@@ -8,16 +8,21 @@ public class InstagibGamemode : BaseGamemode
 	[Event.Entity.PostSpawn]
 	public void OnPostSpawn()
 	{
-		// Remove all weapon spawners
-		var weaponSpawners = Entity.All.OfType<WeaponSpawner>().ToList();
-		weaponSpawners.ForEach( x => x.Delete() );
+		void DeleteAll<T>() where T : Entity
+		{
+			var matchingEnts = Entity.All.OfType<T>().ToList();
+			matchingEnts.ForEach( x => x.Delete() );
+		}
+
+		DeleteAll<WeaponSpawner>();
+		DeleteAll<VitalsSpawner>();
 	}
 
 	public override void RespawnPlayer( Player player )
 	{
 		base.RespawnPlayer( player );
 
-		player.Health = 1;
+		player.Health = 1; // One shot, one kill
 	}
 
 	protected override void SetInventory( Player player )
