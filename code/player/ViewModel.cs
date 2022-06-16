@@ -4,7 +4,7 @@ public class ViewModel : BaseViewModel
 {
 	[ConVar.Replicated( "oa_debug_viewmodel" )] public static bool Debug { get; set; }
 
-	private const float DefaultFov = 70f;
+	private const float DefaultFov = 80f;
 
 	private float Fov = DefaultFov;
 	private Vector3 Offset;
