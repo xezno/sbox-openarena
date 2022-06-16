@@ -34,7 +34,7 @@ partial class Player
 		if ( LifeState == LifeState.Dead )
 			return;
 
-		Health = Health.Clamp( 0, 200 );
+		Health = Health.Clamp( 0, 150 );
 
 		if ( Health > 100 )
 			Health -= Time.Delta;

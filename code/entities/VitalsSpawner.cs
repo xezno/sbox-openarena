@@ -69,7 +69,7 @@ public partial class VitalsSpawner : ModelEntity
 		if ( !IsServer )
 			return;
 
-		player.Health = player.Health + 50;
+		player.Health = player.Health + 15;
 		PlayDeploySound( To.Single( player ) );
 	}
 
