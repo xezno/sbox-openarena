@@ -137,7 +137,8 @@ partial class Player
 		// Tell attacker that they did damage to us
 		if ( IsServer && info.Attacker != this )
 		{
-			RpcDamageDealt( To.Single( info.Attacker ), LifeState == LifeState.Dead, info.Damage, NetworkIdent );
+			RpcDamageDealt( To.Single( info.Attacker ),
+				LifeState == LifeState.Dead, info.Position, info.Damage, NetworkIdent );
 		}
 	}
 
@@ -161,7 +162,7 @@ partial class Player
 	}
 
 	[ClientRpc]
-	public void RpcDamageDealt( bool isKill, float damageAmount, int victimNetworkId )
+	public void RpcDamageDealt( bool isKill, Vector3 position, float damageAmount, int victimNetworkId )
 	{
 		var victim = All.OfType<Player>().First( x => x.NetworkIdent == victimNetworkId );
 		Log.Trace( $"We did damage to {victim}" );
@@ -175,7 +176,7 @@ partial class Player
 		// TODO(AG) : Am I fucking something up or does SetPitch not work
 		Sound.FromScreen( "hit" ).SetRandomPitch( pitch, pitch );
 
-		Event.Run( ArenaEvent.Player.DidDamage.Name );
+		Event.Run( ArenaEvent.Player.DidDamage.Name, position, damageAmount );
 	}
 
 	public void RenderHud( Vector2 screenSize )

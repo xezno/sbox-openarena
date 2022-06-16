@@ -12,7 +12,7 @@ public partial class Hitmarker : Panel
 	}
 
 	[ArenaEvent.Player.DidDamage]
-	public void OnDidDamage()
+	public void OnDidDamage( Vector3 position, float amount )
 	{
 		currentHitmarkerInstance?.Delete();
 		currentHitmarkerInstance = new HitmarkerInstance( this );
@@ -21,16 +21,13 @@ public partial class Hitmarker : Panel
 	public class HitmarkerInstance : Panel
 	{
 		private TimeSince timeSinceCreated;
-		private float duration = 0.1f; // in seconds
+		private float duration = 0.2f; // in seconds
 
 		public HitmarkerInstance( Panel parent )
 		{
 			Parent = parent;
 
 			timeSinceCreated = 0;
-
-			Style.Width = 96f;
-			Style.Height = 96f;
 		}
 
 		public override void Tick()
@@ -41,9 +38,9 @@ public partial class Hitmarker : Panel
 			if ( t >= 1 )
 				Delete();
 
-			Style.Opacity = 1.0f - t;
-
-			Log.Trace( Style.Opacity );
+			// Fade in/out (0 to 1 to 0) - https://www.desmos.com/calculator/kscda6lwcu
+			float opacity = MathF.Sin( t * MathF.PI );
+			Style.Opacity = opacity;
 		}
 	}
 }

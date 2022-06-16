@@ -1,0 +1,23 @@
+﻿@import "/UI/_Theme.scss";
+
+damagenumbers {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: -100;
+}
+
+damagenumber {
+    position: absolute;
+    top: -1000px;
+    left: -1000px;
+    opacity: 0;
+    font-size: 24px;
+    font-family: $font;
+    font-weight: 700;
+    color: white;
+    font-size: 32px;
+    transform: translateX( -50% );
+}
