@@ -2,6 +2,14 @@
 {
 	_class = "CParticleSystemDefinition"
 	m_nBehaviorVersion = 10
+	m_nInitialParticles = 1
+	m_flConstantRadius = 24.0
+	m_controlPointConfigurations = 
+	[
+		{
+			m_name = "preview"
+		},
+	]
 	m_Emitters = 
 	[
 		{
@@ -474,7 +482,7 @@
 			{
 				m_nType = "PF_TYPE_LITERAL"
 				m_nMapType = "PF_MAP_TYPE_DIRECT"
-				m_flLiteralValue = 1.0
+				m_flLiteralValue = 2.0
 				m_nControlPoint = 0
 				m_nScalarAttribute = 3
 				m_nVectorAttribute = 6
@@ -561,14 +569,6 @@
 				}
 			}
 			m_hTexture = resource:"materials/particles/particle_ring_soft_inner.vtex"
-		},
-	]
-	m_nInitialParticles = 1
-	m_flConstantRadius = 24.0
-	m_controlPointConfigurations = 
-	[
-		{
-			m_name = "preview"
 		},
 	]
 }
