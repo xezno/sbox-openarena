@@ -174,6 +174,8 @@ partial class Player
 
 		// TODO(AG) : Am I fucking something up or does SetPitch not work
 		Sound.FromScreen( "hit" ).SetRandomPitch( pitch, pitch );
+
+		Event.Run( ArenaEvent.Player.DidDamage.Name );
 	}
 
 	public void RenderHud( Vector2 screenSize )

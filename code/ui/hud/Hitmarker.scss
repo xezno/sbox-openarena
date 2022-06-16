@@ -1,0 +1,33 @@
+﻿@import "/ui/_Theme.scss";
+
+hitmarker {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    align-items: center;
+    justify-content: center;
+
+    hitmarkerinstance {
+        width: 128px;
+        height: 128px;
+        opacity: 1;
+        position: absolute;
+        background-image: url( /ui/misc/hit.png );
+        background-size: 100%;
+        animation-name: hitmarker-animation;
+        animation-duration: 0.1s;
+        animation-timing-function: linear;
+    }
+}
+
+@keyframes hitmarker-animation {
+    0% {
+        transform: scale( 1.5 );
+    }
+
+    100% {
+        transform: scale( 0.5 );
+    }
+}

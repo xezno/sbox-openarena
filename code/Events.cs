@@ -23,5 +23,15 @@ public class ArenaEvent
 
 			public Death() : base( Name ) { }
 		}
+
+		/// <summary>
+		/// Fired on client only through an RPC
+		/// </summary>
+		public class DidDamage : EventAttribute
+		{
+			public const string Name = "arenaevent.player.diddamage";
+
+			public DidDamage() : base( Name ) { }
+		}
 	}
 }
