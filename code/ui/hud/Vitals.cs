@@ -28,7 +28,7 @@ public class Vitals : Panel
 			return;
 		}
 
-		if ( player.ActiveChild is BaseWeapon weapon )
+		if ( player.ActiveChild is BaseWeapon weapon && weapon.Ammo != null )
 			AmmoLabel.Text = $"{weapon.Ammo.Count}";
 		else
 			AmmoLabel.Text = "";

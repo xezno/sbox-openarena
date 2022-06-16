@@ -93,6 +93,16 @@ public class Inventory
 
 	}
 
+	public bool ContainsAny( string weaponLibraryName )
+	{
+		return List.Any( x => x.GetLibraryName() == weaponLibraryName );
+	}
+
+	public BaseWeapon First( string weaponLibraryName )
+	{
+		return List.OfType<BaseWeapon>().FirstOrDefault( x => x.GetLibraryName() == weaponLibraryName );
+	}
+
 	/// <summary>
 	/// A child has been added to the Owner (player). Do we want this
 	/// entity in our inventory? Yeah? Add it then.

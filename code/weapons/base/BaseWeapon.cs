@@ -10,17 +10,21 @@ public partial class BaseWeapon : BaseCarriable
 
 	protected ICrosshair Crosshair { get; set; }
 
+	public BaseWeapon()
+	{
+		Ammo = new();
+	}
+
 	public override void Spawn()
 	{
 		base.Spawn();
+
 		LoadWeaponData();
 
 		SetModel( WeaponData.WorldModel );
 
 		CollisionGroup = CollisionGroup.Weapon; // so players touch it as a trigger but not as a solid
 		SetInteractsAs( CollisionLayer.Debris ); // so player movement doesn't walk into it
-
-		Ammo = new();
 	}
 
 	public override void ClientSpawn()
@@ -39,12 +43,12 @@ public partial class BaseWeapon : BaseCarriable
 
 	private void LoadWeaponData()
 	{
-		var typeName = this.GetLibraryName();
-		WeaponData = ResourceLibrary.GetAll<WeaponDataAsset>().FirstOrDefault( x => x.LibraryName == typeName );
+		var libraryName = this.GetLibraryName();
+		WeaponData = WeaponDataAsset.FindByLibraryName( libraryName );
 
 		if ( WeaponData == null )
 		{
-			throw new Exception( $"No matching weapon data asset for '{typeName}'" );
+			throw new Exception( $"No matching weapon data asset for '{libraryName}'" );
 		}
 	}
 

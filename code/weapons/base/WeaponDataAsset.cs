@@ -90,4 +90,9 @@ public class WeaponDataAsset : GameResource
 	[Category( "Visuals" ), ResourceType( "vpcf" )]
 	public string TracerParticles { get; set; } = "particles/tracer.vpcf";
 	#endregion
+
+	#region Functions
+	public static WeaponDataAsset FindByLibraryName( string libraryName ) =>
+		ResourceLibrary.GetAll<WeaponDataAsset>().FirstOrDefault( x => x.LibraryName == libraryName );
+	#endregion
 }
