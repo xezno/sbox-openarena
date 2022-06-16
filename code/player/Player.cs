@@ -32,6 +32,11 @@ partial class Player
 		if ( LifeState == LifeState.Dead )
 			return;
 
+		Health = Health.Clamp( 0, 200 );
+
+		if ( Health > 100 )
+			Health -= Time.Delta;
+
 		Corpse?.Delete();
 
 		Controller?.Simulate( cl, this, Animator );
