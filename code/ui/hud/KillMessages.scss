@@ -3,13 +3,12 @@
 killmessages {
     position: absolute;
     top: $safe-area-y;
-    bottom: $safe-area-y;
+    bottom: 750px;
     left: $safe-area-x;
     right: $safe-area-x;
     align-items: center;
     flex-direction: column;
-    justify-content: center;
-    padding-bottom: 250px;
+    justify-content: flex-end;
 
     message {
         position: relative;
