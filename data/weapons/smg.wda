@@ -8,11 +8,13 @@
 		LibraryName = "oa_weapon_smg"
 		CrosshairLibraryName = "oa_crosshair_cross"
 		AutoFire = true
-		Damage = 12
+		Damage = 9
 		FireRate = 5
 		DeployTime = 1
+		TTK = "2400ms (+ 1000ms deploy time)"
 		Spread = 0.1
 		SpreadRandomness = 0.1
+		ShotCount = "3,3"
 		WorldModel = resource:"weapons/rust_smg/rust_smg.vmdl"
 		ViewModel = resource:"weapons/rust_smg/v_rust_smg.vmdl"
 		FireSound = resource:"weapons/rust_smg/sounds/rust_smg.shoot.sound"

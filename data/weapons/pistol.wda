@@ -7,11 +7,11 @@
 		InventorySlot = 2
 		LibraryName = "oa_weapon_pistol"
 		CrosshairLibraryName = "oa_crosshair_cross"
-		AutoFire = false
-		Damage = 20
-		FireRate = 5
+		AutoFire = true
+		Damage = 10
+		FireRate = 4
 		DeployTime = 1
-		TTK = "1000ms (+ 1000ms deploy time)"
+		TTK = "2500ms (+ 1000ms deploy time)"
 		Spread = 0.1
 		SpreadRandomness = 0.1
 		ShotCount = "3,3"

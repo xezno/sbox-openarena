@@ -9,8 +9,9 @@
 		CrosshairLibraryName = "oa_crosshair_dot"
 		AutoFire = false
 		Damage = 75
-		FireRate = 5
+		FireRate = 1
 		DeployTime = 1
+		TTK = "2000ms (+ 1000ms deploy time)"
 		Spread = 0.1
 		SpreadRandomness = 0.1
 		ShotCount = "3,3"
