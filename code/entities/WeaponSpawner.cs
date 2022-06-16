@@ -66,7 +66,8 @@ public partial class WeaponSpawner : ModelEntity
 			weaponSceneObject.Flags.IsTranslucent = true;
 			weaponSceneObject.Flags.IsOpaque = false;
 
-			weaponSceneObject.ColorTint = Color.White * sinX;
+			float alpha = t < 1.0f ? 0.5f : 1.0f;
+			weaponSceneObject.ColorTint = Color.White * alpha;
 		}
 	}
 
