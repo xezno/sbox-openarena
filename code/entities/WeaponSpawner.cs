@@ -15,6 +15,7 @@ public partial class WeaponSpawner : ModelEntity
 	[Net] private TimeUntil TimeUntilReady { get; set; } = 0;
 	[Property, Net] public string WeaponLibraryName { get; set; } = "oa_weapon_smg";
 
+	private float baseOffset;
 	private Particles progressParticles;
 
 	public override void Spawn()
@@ -39,6 +40,8 @@ public partial class WeaponSpawner : ModelEntity
 		weaponSceneObject = new( Map.Scene, Model.Load( WeaponData.WorldModel ), weaponAttachmentTransform );
 
 		progressParticles = Particles.Create( "particles/pickup.vpcf" );
+
+		baseOffset = Rand.Float( 0, MathF.PI * 2 ); // 0 to 1 sine cycles
 	}
 
 	[Event.Frame]
@@ -46,26 +49,24 @@ public partial class WeaponSpawner : ModelEntity
 	{
 		Host.AssertClient();
 
-		{
-			float t = TimeUntilReady.Relative.LerpInverse( CooldownPeriod, 0 );
+		float t = TimeUntilReady.Relative.LerpInverse( CooldownPeriod, 0 );
 
+		{
 			progressParticles.SetPosition( 0, Position + Vector3.Up * 0.25f );
 			progressParticles.SetPositionComponent( 1, 0, t );
 			progressParticles.SetPositionComponent( 1, 1, IsReady ? 1 : 0 );
 		}
 
 		{
-			Vector3 bobbingOffset = Vector3.Up * MathF.Sin( Time.Now * 2f ) * 4f;
-			weaponSceneObject.Rotation = Rotation.From( 0, Time.Now * 90f, 0 );
+			float sinX = Time.Now + baseOffset;
+			Vector3 bobbingOffset = Vector3.Up * MathF.Sin( sinX * 2f ) * 4f;
+			weaponSceneObject.Rotation = Rotation.From( 0, sinX * 90f, 0 );
 			weaponSceneObject.Position += bobbingOffset * Time.Delta;
 
-			weaponSceneObject.SetMaterialOverride( Material.Load( "materials/dev/reflectivity_90b.vmat" ) );
 			weaponSceneObject.Flags.IsTranslucent = true;
+			weaponSceneObject.Flags.IsOpaque = false;
 
-			if ( IsReady )
-				weaponSceneObject.ColorTint = Color.White;
-			else
-				weaponSceneObject.ColorTint = Color.Black.WithAlpha( 0.25f );
+			weaponSceneObject.ColorTint = Color.White * sinX;
 		}
 	}
 
