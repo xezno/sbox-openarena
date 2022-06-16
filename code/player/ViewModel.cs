@@ -4,7 +4,7 @@ public class ViewModel : BaseViewModel
 {
 	[ConVar.Replicated( "oa_debug_viewmodel" )] public static bool Debug { get; set; }
 
-	private const float DefaultFov = 80f;
+	private const float DefaultFov = 70f;
 
 	private float Fov = DefaultFov;
 	private Vector3 Offset;
@@ -15,7 +15,8 @@ public class ViewModel : BaseViewModel
 	private Rotation TargetRotation;
 
 	private float WalkBob;
-	private float LerpRate = 10f;
+	private float OffsetLerpRate = 10f;
+	private float FovLerpRate = 25f;
 
 	// ============================================================
 
@@ -37,7 +38,6 @@ public class ViewModel : BaseViewModel
 				$"TargetOffset:                {TargetOffset}\n" +
 				$"Position:                    {Position}\n" +
 				$"Fov:                         {Fov}\n" +
-				$"LerpRate:                    {LerpRate}\n" +
 				$"Rotation:                    {Rotation}",
 				new Vector2( 60, 250 ) );
 		}
@@ -45,10 +45,10 @@ public class ViewModel : BaseViewModel
 
 	private void ApplyEffects( ref CameraSetup camSetup )
 	{
-		Fov = Fov.LerpTo( TargetFov, LerpRate * Time.Delta );
+		Fov = Fov.LerpTo( TargetFov, FovLerpRate * Time.Delta );
 		camSetup.ViewModel.FieldOfView = Fov;
 
-		Offset = Offset.LerpTo( TargetOffset, LerpRate * Time.Delta );
+		Offset = Offset.LerpTo( TargetOffset, OffsetLerpRate * Time.Delta );
 		Position += -Offset * Rotation;
 	}
 
@@ -65,6 +65,9 @@ public class ViewModel : BaseViewModel
 			float factor = 2.0f;
 			TargetOffset = Bobbing.CalculateOffset( WalkBob, t, factor ) * camSetup.Rotation;
 			TargetOffset += new Vector3( t, 0, t / 2f ) * factor;
+
+			if ( player.IsZooming )
+				TargetFov = 30f;
 		}
 	}
 }
