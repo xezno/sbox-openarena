@@ -7,45 +7,57 @@ partial class ArenaGame
 		Host.AssertServer();
 
 		var sourcePos = position;
-		var radius = 256f;
+		var radius = 120f;
 		var overlaps = All.Where( x => Vector3.DistanceBetween( sourcePos, x.Position ) <= radius ).ToList();
+
+		DebugOverlay.Sphere( position, radius, Color.Red, 5f );
 
 		foreach ( var overlap in overlaps )
 		{
-			if ( overlap is not ModelEntity ent || !ent.IsValid() ) continue;
-			if ( ent.LifeState != LifeState.Alive || !ent.PhysicsBody.IsValid() || ent.IsWorld ) continue;
+			// Check if this is something we can explode
+			if ( overlap is not ModelEntity ent || !ent.IsValid() )
+				continue;
+
+			if ( ent.LifeState != LifeState.Alive || !ent.PhysicsBody.IsValid() || ent.IsWorld )
+				continue;
+
+			// Check to make sure there's nothing in the way
+			var tr = Trace.Ray( position, ent.Position ).Run();
+
+			if ( tr.Hit && tr.Entity != ent )
+				continue;
 
 			var dir = ( overlap.Position - position ).Normal;
-			var dist = Vector3.DistanceBetween( position, overlap.Position );
+			dir = dir.WithZ( 1 ).Normal; // Shoot up into the air
 
-			if ( dist > radius ) continue;
+			var dist = Vector3.DistanceBetween( position, overlap.Position + ent.CollisionBounds.Center );
+			var force = ent.PhysicsBody.Mass * 0.25f;
 
-			var distanceFactor = 1.0f - Math.Clamp( dist / radius, 0, 1 );
-			float mul = 0.25f;
-			var force = distanceFactor * ent.PhysicsBody.Mass * mul;
+			float damageFrac = dist.LerpInverse( radius, 64 );
 
-			if ( ent.GroundEntity != null )
-			{
-				ent.GroundEntity = null;
-				if ( ent is Player { Controller: WalkController playerController } )
-					playerController.ClearGroundEntity();
-			}
-
+			// Rocket jumping overrides
 			if ( ent == owner )
 			{
 				force *= 1.5f;
+				damageFrac *= 0.3f;
+
 				if ( owner is Player { Controller: WalkController { Duck.IsActive: true } } )
 				{
 					force *= 1.5f;
 				}
 			}
 
-			var tr = Trace.Ray( position, ent.Position ).Run();
-			if ( tr.Hit && tr.Entity != ent )
-				continue;
+			// Clear ground entity
+			ent.GroundEntity = null;
+			if ( ent is Player { Controller: WalkController playerController } )
+				playerController.ClearGroundEntity();
 
-			ent.TakeDamage( DamageInfo.Generic( damage ).WithAttacker( owner ).WithFlag( DamageFlags.AlwaysGib ) );
+			// Apply impulse & damage
 			ent.ApplyAbsoluteImpulse( dir * force );
+			ent.TakeDamage( DamageInfo.Generic( damage * damageFrac )
+									  .WithAttacker( owner )
+									  .WithFlag( DamageFlags.AlwaysGib )
+									  .WithPosition( ent.Position + ent.CollisionBounds.Center ) );
 		}
 
 		using ( Prediction.Off() )
