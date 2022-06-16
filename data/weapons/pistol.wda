@@ -2,7 +2,7 @@
 {
 	data = 
 	{
-		UIName = "Weapon"
+		UIName = "Pistol"
 		UIDescription = "My Cool Weapon"
 		InventorySlot = 2
 		LibraryName = "oa_weapon_pistol"

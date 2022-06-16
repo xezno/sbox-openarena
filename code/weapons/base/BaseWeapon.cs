@@ -3,7 +3,7 @@
 [Title( "Base Weapon" ), Icon( "sports_martial_arts" )]
 public partial class BaseWeapon : BaseCarriable
 {
-	protected WeaponDataAsset WeaponData { get; private set; }
+	public WeaponDataAsset WeaponData { get; private set; }
 	protected TimeSince TimeSinceDeployed { get; private set; }
 
 	[Net, Predicted] public AmmoContainer Ammo { get; private set; }

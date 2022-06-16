@@ -45,7 +45,6 @@ public class DamageNumbers : Panel
 
 			var ndcVec2 = new Vector2( ndcPos.x, ndcPos.y );
 			var screenPos = ndcVec2 * Screen.Size / scale;
-			Log.Trace( scale );
 
 			Style.Left = Length.Pixels( screenPos.x + Position.x );
 			Style.Top = Length.Pixels( screenPos.y + Position.y );

@@ -11,20 +11,22 @@ partial class Player
 		base.ClientSpawn();
 
 		if ( IsLocalPawn )
+		{
 			Announcer = new();
+			Inventory.Owner = this;
+		}
 	}
 
 	private void TickInventorySlot()
 	{
-		if ( Input.Pressed( InputButton.Slot1 ) ) Inventory.SetActiveSlot( 0 );
-		if ( Input.Pressed( InputButton.Slot2 ) ) Inventory.SetActiveSlot( 1 );
-		if ( Input.Pressed( InputButton.Slot3 ) ) Inventory.SetActiveSlot( 2 );
-		if ( Input.Pressed( InputButton.Slot4 ) ) Inventory.SetActiveSlot( 3 );
-		if ( Input.Pressed( InputButton.Slot5 ) ) Inventory.SetActiveSlot( 4 );
-		if ( Input.Pressed( InputButton.Slot6 ) ) Inventory.SetActiveSlot( 5 );
-		if ( Input.Pressed( InputButton.Slot7 ) ) Inventory.SetActiveSlot( 6 );
-		if ( Input.Pressed( InputButton.Slot8 ) ) Inventory.SetActiveSlot( 7 );
-		if ( Input.Pressed( InputButton.Slot9 ) ) Inventory.SetActiveSlot( 8 );
+		if ( Input.Pressed( InputButton.Slot1 ) ) Inventory.SetActiveSlot( WeaponSlot.Melee );
+		if ( Input.Pressed( InputButton.Slot2 ) ) Inventory.SetActiveSlot( WeaponSlot.Pistol );
+		if ( Input.Pressed( InputButton.Slot3 ) ) Inventory.SetActiveSlot( WeaponSlot.Shotgun );
+		if ( Input.Pressed( InputButton.Slot4 ) ) Inventory.SetActiveSlot( WeaponSlot.FullAuto );
+		if ( Input.Pressed( InputButton.Slot5 ) ) Inventory.SetActiveSlot( WeaponSlot.Rifle );
+		if ( Input.Pressed( InputButton.Slot6 ) ) Inventory.SetActiveSlot( WeaponSlot.Special );
+		if ( Input.Pressed( InputButton.Slot7 ) ) Inventory.SetActiveSlot( WeaponSlot.Explosive );
+		if ( Input.Pressed( InputButton.Slot8 ) ) Inventory.SetActiveSlot( WeaponSlot.Super );
 	}
 
 	public override void Simulate( Client cl )
@@ -71,16 +73,14 @@ partial class Player
 			DebugOverlay.ScreenText( "[INVENTORY]\n" +
 				$"ActiveSlot:                  {Inventory.GetActiveSlot()}\n" +
 				$"Active:                      {Inventory.Active}\n" +
-				$"Slot 0:                      {Inventory.GetSlot( 0 )}\n" +
-				$"Slot 1:                      {Inventory.GetSlot( 1 )}\n" +
-				$"Slot 2:                      {Inventory.GetSlot( 2 )}\n" +
-				$"Slot 3:                      {Inventory.GetSlot( 3 )}\n" +
-				$"Slot 4:                      {Inventory.GetSlot( 4 )}\n" +
-				$"Slot 5:                      {Inventory.GetSlot( 5 )}\n" +
-				$"Slot 6:                      {Inventory.GetSlot( 6 )}\n" +
-				$"Slot 7:                      {Inventory.GetSlot( 7 )}\n" +
-				$"Slot 8:                      {Inventory.GetSlot( 8 )}\n" +
-				$"Slot 9:                      {Inventory.GetSlot( 9 )}\n",
+				$"Slot 0:                      {Inventory.GetSlot( WeaponSlot.Melee )}\n" +
+				$"Slot 1:                      {Inventory.GetSlot( WeaponSlot.Pistol )}\n" +
+				$"Slot 2:                      {Inventory.GetSlot( WeaponSlot.Shotgun )}\n" +
+				$"Slot 3:                      {Inventory.GetSlot( WeaponSlot.FullAuto )}\n" +
+				$"Slot 4:                      {Inventory.GetSlot( WeaponSlot.Rifle )}\n" +
+				$"Slot 5:                      {Inventory.GetSlot( WeaponSlot.Special )}\n" +
+				$"Slot 6:                      {Inventory.GetSlot( WeaponSlot.Explosive )}\n" +
+				$"Slot 7:                      {Inventory.GetSlot( WeaponSlot.Super )}\n",
 				new Vector2( 60, 350 ) );
 		}
 	}

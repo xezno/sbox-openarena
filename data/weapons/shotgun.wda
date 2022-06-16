@@ -2,7 +2,7 @@
 {
 	data = 
 	{
-		UIName = "Weapon"
+		UIName = "Shotgun"
 		UIDescription = "My Cool Weapon"
 		InventorySlot = 3
 		LibraryName = "oa_weapon_shotgun"
@@ -11,8 +11,9 @@
 		Damage = 8
 		FireRate = 1
 		DeployTime = 1
-		Spread = 0.1
-		SpreadRandomness = 0.1
+		TTK = "13000ms (+ 1000ms deploy time)"
+		Spread = 0.03
+		SpreadRandomness = 0
 		ShotCount = "3,3"
 		WorldModel = resource:"weapons/rust_pumpshotgun/rust_pumpshotgun.vmdl"
 		ViewModel = resource:"weapons/rust_pumpshotgun/v_rust_pumpshotgun.vmdl"

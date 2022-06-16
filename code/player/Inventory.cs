@@ -1,15 +1,16 @@
 ﻿namespace OpenArena;
 
-public class Inventory
+public partial class Inventory : BaseNetworkable
 {
-	public Entity Owner { get; init; }
-	public List<Entity> List = new List<Entity>();
+	[Net] public IList<BaseWeapon> List { get; set; }
 
-	public virtual Entity Active
+	[Net] public Entity Owner { get; set; }
+
+	public virtual BaseWeapon Active
 	{
 		get
 		{
-			return ( Owner as Player )?.ActiveChild;
+			return ( Owner as Player )?.ActiveChild as BaseWeapon;
 		}
 
 		set
@@ -21,17 +22,9 @@ public class Inventory
 		}
 	}
 
-	public Inventory( Entity owner )
+	public virtual bool CanAdd( BaseWeapon weapon )
 	{
-		Owner = owner;
-	}
-
-	/// <summary>
-	/// Return true if this item belongs in the inventory
-	/// </summary>
-	public virtual bool CanAdd( Entity ent )
-	{
-		if ( ent is BaseCarriable bc && bc.CanCarry( Owner ) )
+		if ( weapon.CanCarry( Owner ) )
 			return true;
 
 		return false;
@@ -55,12 +48,9 @@ public class Inventory
 	/// <summary>
 	/// Get the item in this slot
 	/// </summary>
-	public virtual Entity GetSlot( int i )
+	public virtual BaseWeapon GetSlot( WeaponSlot slot )
 	{
-		if ( List.Count <= i ) return null;
-		if ( i < 0 ) return null;
-
-		return List[i];
+		return List.FirstOrDefault( x => x.WeaponData.InventorySlot == slot );
 	}
 
 	/// <summary>
@@ -71,26 +61,9 @@ public class Inventory
 	/// <summary>
 	/// Returns the index of the currently active child
 	/// </summary>
-	public virtual int GetActiveSlot()
+	public virtual WeaponSlot GetActiveSlot()
 	{
-		var ae = Active;
-		var count = Count();
-
-		for ( int i = 0; i < count; i++ )
-		{
-			if ( List[i] == ae )
-				return i;
-		}
-
-		return -1;
-	}
-
-	/// <summary>
-	/// Try to pick this entity up
-	/// </summary>
-	public virtual void Pickup( Entity ent )
-	{
-
+		return Active?.WeaponData.InventorySlot ?? (WeaponSlot)( -1 );
 	}
 
 	public bool ContainsAny( string weaponLibraryName )
@@ -104,38 +77,11 @@ public class Inventory
 	}
 
 	/// <summary>
-	/// A child has been added to the Owner (player). Do we want this
-	/// entity in our inventory? Yeah? Add it then.
-	/// </summary>
-	public virtual void OnChildAdded( Entity child )
-	{
-		if ( !CanAdd( child ) )
-			return;
-
-		if ( List.Contains( child ) )
-			throw new System.Exception( "Trying to add to inventory multiple times. This is gated by Entity:OnChildAdded and should never happen!" );
-
-		List.Add( child );
-	}
-
-	/// <summary>
-	/// A child has been removed from our Owner. This might not even
-	/// be in our inventory, if it is then we'll remove it from our list
-	/// </summary>
-	public virtual void OnChildRemoved( Entity child )
-	{
-		if ( List.Remove( child ) )
-		{
-			// On removed etc
-		}
-	}
-
-	/// <summary>
 	/// Set our active entity to the entity on this slot
 	/// </summary>
-	public virtual bool SetActiveSlot( int i, bool evenIfEmpty = false )
+	public virtual bool SetActiveSlot( WeaponSlot slot, bool evenIfEmpty = false )
 	{
-		var ent = GetSlot( i );
+		var ent = GetSlot( slot );
 		if ( Active == ent )
 			return false;
 
@@ -148,34 +94,9 @@ public class Inventory
 	}
 
 	/// <summary>
-	/// Switch to the slot next to the slot we have active.
-	/// </summary>
-	public virtual bool SwitchActiveSlot( int idelta, bool loop )
-	{
-		var count = Count();
-		if ( count == 0 ) return false;
-
-		var slot = GetActiveSlot();
-		var nextSlot = slot + idelta;
-
-		if ( loop )
-		{
-			while ( nextSlot < 0 ) nextSlot += count;
-			while ( nextSlot >= count ) nextSlot -= count;
-		}
-		else
-		{
-			if ( nextSlot < 0 ) return false;
-			if ( nextSlot >= count ) return false;
-		}
-
-		return SetActiveSlot( nextSlot, false );
-	}
-
-	/// <summary>
 	/// Drop the active entity. If we can't drop it, will return null
 	/// </summary>
-	public virtual Entity DropActive()
+	public virtual BaseWeapon DropActive()
 	{
 		if ( !Host.IsServer ) return null;
 
@@ -194,7 +115,7 @@ public class Inventory
 	/// <summary>
 	/// Drop this entity. Will return true if successfully dropped.
 	/// </summary>
-	public virtual bool Drop( Entity ent )
+	public virtual bool Drop( BaseWeapon ent )
 	{
 		if ( !Host.IsServer )
 			return false;
@@ -203,11 +124,7 @@ public class Inventory
 			return false;
 
 		ent.Parent = null;
-
-		if ( ent is BaseCarriable bc )
-		{
-			bc.OnCarryDrop( Owner );
-		}
+		ent.OnCarryDrop( Owner );
 
 		return true;
 	}
@@ -217,7 +134,7 @@ public class Inventory
 	/// </summary>
 	public virtual bool Contains( Entity ent )
 	{
-		return List.Contains( ent );
+		return List.Any( x => x == ent );
 	}
 
 	/// <summary>
@@ -228,6 +145,9 @@ public class Inventory
 		return List.OfType<T>().Any();
 	}
 
+	/// <summary>
+	/// Returns first weapon of this type
+	/// </summary>
 	public virtual T First<T>() where T : Entity
 	{
 		return List.OfType<T>().First();
@@ -236,7 +156,7 @@ public class Inventory
 	/// <summary>
 	/// Make this entity the active one
 	/// </summary>
-	public virtual bool SetActive( Entity ent )
+	public virtual bool SetActive( BaseWeapon ent )
 	{
 		if ( Active == ent ) return false;
 		if ( !Contains( ent ) ) return false;
@@ -249,7 +169,7 @@ public class Inventory
 	/// Try to add this entity to the inventory. Will return true
 	/// if the entity was added successfully. 
 	/// </summary>
-	public virtual bool Add( Entity ent, bool makeActive = false )
+	public virtual bool Add( BaseWeapon ent, bool makeActive = false )
 	{
 		Host.AssertServer();
 
@@ -277,8 +197,8 @@ public class Inventory
 		//
 		// Passed!
 		//
-
 		ent.Parent = Owner;
+		List.Add( ent );
 
 		//
 		// Let the item do shit

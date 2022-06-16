@@ -1,0 +1,28 @@
+﻿@import "/ui/_Theme.scss";
+
+InventoryUI {
+    position: absolute;
+    right: $safe-area-x;
+    width: 200px;
+    top: 50%;
+    flex-direction: column;
+    font-weight: 800;
+    font-size: 20px;
+    color: white;
+
+    InventoryPanel {
+        background-color: $background;
+        padding: 10px 20px;
+        margin: 5px 0;
+        border-radius: 5px;
+
+        label {
+            margin-right: 4px;
+        }
+
+        &.active {
+            background-color: $accent;
+            color: black;
+        }
+    }
+}

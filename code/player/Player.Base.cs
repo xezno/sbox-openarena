@@ -7,10 +7,10 @@ public partial class Player : AnimatedEntity
 	[Net, Predicted] public PawnAnimator Animator { get; set; }
 	[Net, Predicted] public Entity ActiveChild { get; set; }
 	[Net] public float Shields { get; set; }
+	[Net] public Inventory Inventory { get; protected set; }
+
 	public Entity LastActiveChild { get; set; }
 	public DamageInfo LastDamageInfo { get; set; }
-
-	public Inventory Inventory { get; protected set; }
 
 	public CameraMode CameraMode
 	{
@@ -23,16 +23,14 @@ public partial class Player : AnimatedEntity
 	public TimeSince TimeSinceDied { get; private set; }
 	private TimeSince timeSinceLastFootstep = 0;
 
-	public Player()
-	{
-		Inventory = new Inventory( this );
-	}
-
 	public override void Spawn()
 	{
 		EnableLagCompensation = true;
 
 		Tags.Add( "player" );
+
+		Inventory = new Inventory();
+		Inventory.Owner = this;
 
 		base.Spawn();
 	}
@@ -149,7 +147,10 @@ public partial class Player : AnimatedEntity
 			return;
 		}
 
-		Inventory?.Add( other, Inventory.Active == null );
+		if ( other is BaseWeapon weapon )
+		{
+			Inventory?.Add( weapon, Inventory.Active == null );
+		}
 	}
 
 	public virtual void SimulateActiveChild( Client cl, Entity child )
@@ -170,15 +171,5 @@ public partial class Player : AnimatedEntity
 
 		if ( ActiveChild.IsAuthority )
 			ActiveChild.Simulate( cl );
-	}
-
-	public override void OnChildAdded( Entity child )
-	{
-		Inventory?.OnChildAdded( child );
-	}
-
-	public override void OnChildRemoved( Entity child )
-	{
-		Inventory?.OnChildRemoved( child );
 	}
 }
