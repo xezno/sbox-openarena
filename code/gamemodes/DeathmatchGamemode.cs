@@ -20,7 +20,7 @@ public partial class DeathmatchGamemode : BaseGamemode
 	 *     - Person with most frags at end of timer wins
 	 */
 
-	public DeathmatchGamemode()
+	public DeathmatchGamemode() : base()
 	{
 		TimeSinceGameStart = 0;
 	}
@@ -47,6 +47,7 @@ public partial class DeathmatchGamemode : BaseGamemode
 	protected override void SetInventory( Player player )
 	{
 		player.Inventory.DeleteContents();
+		player.Inventory.Add( new Crowbar() );
 		player.Inventory.Add( new Pistol(), true );
 	}
 }

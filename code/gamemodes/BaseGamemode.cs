@@ -8,6 +8,11 @@ public partial class BaseGamemode : BaseNetworkable
 	[Net, Predicted] protected TimeSince TimeSinceGameStart { get; set; }
 	protected List<Player> Players => Entity.All.OfType<Player>().ToList();
 
+	public BaseGamemode()
+	{
+		Event.Register( this );
+	}
+
 	public virtual void RespawnPlayer( Player player )
 	{
 		Log.Trace( $"Gamemode: Respawning {player}" );

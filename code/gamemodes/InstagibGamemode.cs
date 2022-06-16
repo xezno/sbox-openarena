@@ -3,10 +3,22 @@
 [Library( "oa_gamemode_instagib" )]
 public class InstagibGamemode : BaseGamemode
 {
-	/*
-	 * TODO:
-	 * - No weapon spawns
-	 */
+	public InstagibGamemode() : base() { }
+
+	[Event.Entity.PostSpawn]
+	public void OnPostSpawn()
+	{
+		// Remove all weapon spawners
+		var weaponSpawners = Entity.All.OfType<WeaponSpawner>().ToList();
+		weaponSpawners.ForEach( x => x.Delete() );
+	}
+
+	public override void RespawnPlayer( Player player )
+	{
+		base.RespawnPlayer( player );
+
+		player.Health = 1;
+	}
 
 	protected override void SetInventory( Player player )
 	{
