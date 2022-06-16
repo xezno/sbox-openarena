@@ -4,7 +4,7 @@ partial class Player
 {
 	private float TargetFov { get; set; }
 	private float Fov { get; set; }
-	private float WalkBob;
+	private float WalkBob { get; set; }
 
 	private float ZoomSpeed => 25.0f;
 
