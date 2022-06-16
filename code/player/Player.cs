@@ -87,12 +87,17 @@ partial class Player
 		if ( IsInvincible && info.Attacker.IsValid() )
 			return;
 
+		float newHealth = Health - info.Damage;
+
 		base.TakeDamage( info );
 
+		// Do a few things if this killed the player
 		if ( LifeState == LifeState.Dead )
 		{
+			// Tell ourselves that we died
 			RpcOnDeath( To.Single( this ), info.Attacker?.NetworkIdent ?? -1 );
 
+			// Tell attacker that they killed us
 			if ( info.Attacker != null && info.Attacker.Client != null && info.Attacker != this )
 			{
 				RpcOnKill( To.Single( info.Attacker ), this.NetworkIdent );
@@ -100,7 +105,8 @@ partial class Player
 				info.Attacker.Client.AddInt( "kills" );
 			}
 
-			bool shouldGib = Rand.Int( 0, 10 ) == 0;
+			// Gibbing & ragdolling
+			bool shouldGib = newHealth <= -50;
 
 			if ( info.Flags.HasFlag( DamageFlags.AlwaysGib ) )
 				shouldGib = true;
@@ -110,6 +116,9 @@ partial class Player
 
 			if ( shouldGib )
 			{
+				// Sometimes we might not get a damage position (i.e. if it was through
+				// an explosive or trigger) so we'll take the player's position and move
+				// up a little bit to make things still look okay
 				if ( info.Position == Vector3.Zero )
 					info.Position = Position + new Vector3( 0, 0, 32 );
 
