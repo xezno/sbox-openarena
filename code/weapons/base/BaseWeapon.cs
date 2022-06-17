@@ -170,6 +170,8 @@ public partial class BaseWeapon : BaseCarriable
 
 	public virtual TraceResult TraceBullet()
 	{
+		using var _ = LagCompensation();
+
 		Vector3 start = Owner.EyePosition;
 		Vector3 end = Owner.EyePosition + Owner.EyeRotation.Forward * 8192f;
 

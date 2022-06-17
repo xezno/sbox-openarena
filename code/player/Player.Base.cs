@@ -43,6 +43,7 @@ public partial class Player : AnimatedEntity
 		EnableHideInFirstPerson = true;
 		EnableShadowInFirstPerson = true;
 		EnableAllCollisions = true;
+		EnableLagCompensation = true;
 
 		Controller = new QuakeWalkController();
 		Animator = new StandardPlayerAnimator();

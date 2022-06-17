@@ -17,6 +17,8 @@ public class Crowbar : BaseWeapon
 
 	private TraceResult TraceCrowbarSwing()
 	{
+		using var _ = LagCompensation();
+
 		Vector3 start = Owner.EyePosition;
 		Vector3 end = Owner.EyePosition + Owner.EyeRotation.Forward * 64f;
 

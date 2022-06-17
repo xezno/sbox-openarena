@@ -44,6 +44,8 @@ public class Shotgun : BaseWeapon
 
 	private TraceResult TraceBullet( Vector3 offset )
 	{
+		using var _ = LagCompensation();
+
 		var forward = Owner.EyeRotation.Forward + ( offset * Owner.EyeRotation );
 
 		Vector3 start = Owner.EyePosition;
