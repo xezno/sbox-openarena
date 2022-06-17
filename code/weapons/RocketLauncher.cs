@@ -5,6 +5,13 @@ public class RocketLauncher : BaseWeapon
 {
 	private float Speed => 1000f;
 
+	public override void Simulate( Client cl )
+	{
+		Entity.All.OfType<Rocket>().ToList().ForEach( x => x.Simulate( cl ) );
+
+		base.Simulate( cl );
+	}
+
 	public override void ShootBullet()
 	{
 		if ( IsServer )
@@ -17,7 +24,6 @@ public class RocketLauncher : BaseWeapon
 			rocket.Velocity = ( player.Velocity.Length + Speed ) * player.EyeRotation.Forward;
 
 			rocket.Owner = player;
-			rocket.Predictable = true;
 		}
 
 		ViewModelEntity?.SetAnimParameter( "fire", true );

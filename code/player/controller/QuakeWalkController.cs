@@ -13,12 +13,13 @@ public partial class QuakeWalkController : BasePlayerController
 	private Vector3 mins;
 	private Vector3 maxs;
 
+	[Net, Predicted] private Vector3 Impulse { get; set; }
+
 	private bool Walking { get; set; }
 	private bool GroundPlane { get; set; }
 	private TraceResult GroundTrace { get; set; }
 	private Unstuck Unstuck { get; set; }
 	private Duck Duck { get; set; }
-	private Vector3 Impulse { get; set; }
 
 	private bool JumpQueued { get; set; }
 	private TimeSince TimeSinceJumpQueued { get; set; }
@@ -91,6 +92,9 @@ public partial class QuakeWalkController : BasePlayerController
 		// update bounding box post-duck
 		UpdateBBox();
 
+		// predicted trigger update
+		UpdatePredictedTriggers();
+
 		// update velocity based on any impulse applied
 		UpdateVelocity();
 
@@ -138,7 +142,8 @@ public partial class QuakeWalkController : BasePlayerController
 				$"GroundEntity:                {GroundEntity}\n" +
 				$"JumpMode:                    {JumpMode}\n" +
 				$"JumpQueued:                  {JumpQueued}\n" +
-				$"TimeSinceJumpQueued:         {TimeSinceJumpQueued}",
+				$"TimeSinceJumpQueued:         {TimeSinceJumpQueued}\n" +
+				$"TouchingTriggers:            {string.Join( ',', TouchingTriggers.Select( x => x.Name ) )}",
 				new Vector2( 360, 150 ), Time.Delta * 2.0f );
 
 			DebugOverlay.Box( Position, mins, maxs, Color.Red );

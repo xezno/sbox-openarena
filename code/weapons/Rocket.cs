@@ -1,9 +1,10 @@
 ﻿namespace OpenArena;
 
-public class Rocket : ModelEntity
+public partial class Rocket : ModelEntity
 {
-	public TimeSince LifeTime { get; private set; }
+	[Net, Predicted] public TimeSince LifeTime { get; private set; }
 	public float MaxLifetime => 2.5f;
+	[Net, Predicted] public bool ShouldMove { get; set; }
 
 	public override void Spawn()
 	{
@@ -11,26 +12,32 @@ public class Rocket : ModelEntity
 		SetModel( "models/light_arrow.vmdl" );
 
 		LifeTime = 0;
+		ShouldMove = true;
+		Predictable = true;
 	}
 
-	[Event.Frame]
-	[Event.Tick]
-	public void OnTick()
+	public override void Simulate( Client cl )
 	{
+		base.Simulate( cl );
+
 		if ( !IsAuthority )
+			return;
+
+		if ( !ShouldMove )
 			return;
 
 		var target = Position + Velocity * Time.Delta;
 		var tr = Trace.Ray( Position, target ).Ignore( Owner ).Run();
+		DebugOverlay.Line( Position, target, 5f, false );
 
-		if ( IsServer )
+		if ( tr.Hit || LifeTime > MaxLifetime )
 		{
-			if ( tr.Hit || LifeTime > MaxLifetime )
-			{
-				// Explode
-				ArenaGame.Explode( tr.EndPosition, 40f, Owner );
+			// Explode
+			ArenaGame.Explode( tr.EndPosition, 40f, Owner );
+			ShouldMove = false;
+
+			if ( IsServer )
 				Delete();
-			}
 		}
 
 		Position = target;

@@ -4,7 +4,7 @@
 [Title( "Jump Pad" ), Icon( "arrow_upward" ), Category( "World" )]
 [Line( "targetname", "TargetEntity" )]
 [HammerEntity]
-public partial class JumpPad : BaseTrigger
+public partial class JumpPad : PredictedTrigger
 {
 	[Net, Property, FGDType( "target_destination" )]
 	public string TargetEntity { get; set; } = "";
@@ -15,27 +15,28 @@ public partial class JumpPad : BaseTrigger
 	[Net, Property]
 	public float Force { get; set; } = 1024f;
 
-	public override void Touch( Entity other )
+	public override void Spawn()
 	{
-		if ( !IsServer )
-			return;
+		base.Spawn();
 
-		if ( other is not Player player )
-			return;
+		Transmit = TransmitType.Always;
+	}
 
+	public override void PredictedTouch( Player player )
+	{
 		var target = Entity.All.FirstOrDefault( x => x.Name == TargetEntity );
 
 		if ( !target.IsValid() )
 			return;
 
-		var direction = ( target.Position - other.Position ).Normal;
+		if ( player.Controller is not QuakeWalkController walkController )
+			return;
 
-		if ( player.Controller is QuakeWalkController controller )
-		{
-			var impulse = ( direction * Force ) + ( Vector3.Up * VerticalForce );
-			controller.ApplyImpulse( impulse );
-		}
+		var direction = ( target.Position - walkController.Position ).Normal;
 
-		base.Touch( other );
+		var impulse = ( direction * Force ) + ( Vector3.Up * VerticalForce );
+		walkController.ApplyImpulse( impulse );
+
+		base.PredictedTouch( player );
 	}
 }

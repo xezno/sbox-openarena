@@ -4,8 +4,6 @@ partial class ArenaGame
 {
 	public static void Explode( Vector3 position, float damage = 100, Entity owner = null )
 	{
-		Host.AssertServer();
-
 		var sourcePos = position;
 		var radius = 120f;
 		var overlaps = All.Where( x => Vector3.DistanceBetween( sourcePos, x.Position ) <= radius ).ToList();
@@ -19,6 +17,9 @@ partial class ArenaGame
 				continue;
 
 			if ( ent.LifeState != LifeState.Alive || !ent.PhysicsBody.IsValid() || ent.IsWorld )
+				continue;
+
+			if ( !ent.IsAuthority )
 				continue;
 
 			// Check to make sure there's nothing in the way

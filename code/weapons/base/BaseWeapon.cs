@@ -161,7 +161,7 @@ public partial class BaseWeapon : BaseCarriable
 		var startPosition = start.Position + ( direction * 300 );
 
 		var tracerParticles = Particles.Create( WeaponData.TracerParticles, startPosition );
-		tracerParticles.SetPosition( 1, endPosition );
+		tracerParticles?.SetPosition( 1, endPosition );
 
 		_ = Particles.Create( WeaponData.MuzzleFlashParticles, effectEntity, "muzzle" );
 
